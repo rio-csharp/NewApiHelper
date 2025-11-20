@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:NewApiHelper.ViewModels"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
@@ -11,45 +12,110 @@
                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
         <DockPanel>
-            <!-- 顶部工具栏 -->
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10">
-                <Button Content="刷新列表" Command="{Binding LoadChannelsCommand}" Margin="0,0,10,0" />
-                <Button Content="新增渠道" Command="{Binding AddChannelCommand}" Margin="0,0,10,0" />
-                <Button Content="编辑选中" Command="{Binding EditChannelCommand}" />
-                <Button Content="删除选中" Command="{Binding DeleteChannelCommand}" Margin="10,0,0,0" />
-                <Button Content="测试选中" Command="{Binding TestChannelCommand}" Margin="10,0,0,0" />
-            </StackPanel>
 
-            <!-- 渠道数据表格 -->
-            <DataGrid ItemsSource="{Binding Channels}"
-                      SelectedItem="{Binding SelectedChannel, Mode=TwoWay}"
-                      AutoGenerateColumns="False"
-                      IsReadOnly="True"
-                      SelectionMode="Single"
-                      CanUserAddRows="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" />
-                    <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" />
-                    <DataGridTextColumn Header="类型" Binding="{Binding Type}" Width="60" />
-                    <DataGridTextColumn Header="分组" Binding="{Binding Group}" Width="100" />
-                    <DataGridTextColumn Header="状态" Binding="{Binding StatusText}" Width="60" />
-                    <DataGridTextColumn Header="优先级" Binding="{Binding Priority}" Width="70" />
-                    <DataGridTextColumn Header="响应时间(ms)" Binding="{Binding ResponseTime}" Width="100" />
-                    <DataGridTextColumn Header="最近测试" Binding="{Binding TestTimeDisplay}" Width="150" />
-                    <DataGridTemplateColumn Header="测试结果/状态" Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
+            <!-- 侧边栏布局：左侧渠道列表，右侧详情编辑 -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="240" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!-- 左侧：渠道列表 -->
+                <DockPanel Grid.Row="0" Grid.Column="0" LastChildFill="True">
+                    <!-- left small toolbar removed per request -->
+
+                    <ListView ItemsSource="{Binding Channels}" SelectedItem="{Binding SelectedChannel, Mode=TwoWay}" Margin="6"
+                              IsSynchronizedWithCurrentItem="True">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Margin" Value="3"/>
+                                <Setter Property="Padding" Value="6"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="#FFE6F7FF"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
                             <DataTemplate>
-                                <Grid>
-                                    <TextBlock Text="{Binding TestStatusMessage}" VerticalAlignment="Center"
-                                               Visibility="{Binding IsBusy, Converter={StaticResource InvertedBooleanToVisibilityConverter}}" />
-                                    <ProgressBar IsIndeterminate="True" Height="16"
-                                                 Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                </Grid>
+                                <Border Padding="6" Margin="2">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                                            <TextBlock Text="{Binding Group}" FontSize="11" Foreground="Gray" />
+                                        </StackPanel>
+                                        <TextBlock Text="新" Foreground="White" Background="#FF3BA1FF" Margin="6,0,0,0" Padding="4,2" Visibility="{Binding IsNew, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <Button Content="新增" Command="{Binding AddChannelCommand}" Margin="6" DockPanel.Dock="Bottom" />
+                </DockPanel>
+
+                <!-- 右侧：详情/编辑面板，使用 ContentControl 绑定 SelectedChannel -->
+                <ContentControl Grid.Row="0" Grid.Column="1" Content="{Binding SelectedChannel}">
+                    <ContentControl.ContentTemplate>
+                        <DataTemplate DataType="{x:Type vm:ChannelItemViewModel}">
+                            <Border BorderBrush="Gray" BorderThickness="1" Padding="12" Margin="6">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                    <StackPanel>
+                                    <TextBlock Text="渠道详情" FontSize="16" FontWeight="Bold" />
+                                    <StackPanel Orientation="Horizontal" Margin="0,6,0,6">
+                                        <Button Content="刷新" Command="{Binding DataContext.LoadChannelsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,0,6,0"/>
+                                        <Button Content="新增" Command="{Binding DataContext.AddChannelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,0,6,0"/>
+                                        <Button Content="编辑" Command="{Binding DataContext.StartEditChannelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,0,6,0" ToolTip="选择一个渠道以启用编辑"/>
+                                        <Button Content="删除" Command="{Binding DataContext.DeleteChannelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,0,6,0" ToolTip="删除当前选中渠道"/>
+                                        <Button Content="测试" Command="{Binding DataContext.TestChannelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,0,6,0" ToolTip="测试当前选中渠道"/>
+                                        <Button Content="保存" Command="{Binding DataContext.SaveChannelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,0,6,0"/>
+                                        <Button Content="取消" Command="{Binding DataContext.CancelEditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="0,0,6,0"/>
+                                    </StackPanel>
+
+                                    <StackPanel Margin="0,6,0,0">
+                                        <TextBlock Text="名称" />
+                                        <TextBox Text="{Binding Name, Mode=TwoWay}" IsEnabled="{Binding IsEditing}" />
+                                        <TextBlock Text="Base URL" Margin="0,8,0,0" />
+                                        <TextBox Text="{Binding BaseUrl, Mode=TwoWay}" IsEnabled="{Binding IsEditing}" />
+                                        <TextBlock Text="Key" Margin="0,8,0,0" />
+                                        <TextBox Text="{Binding Key, Mode=TwoWay}" IsEnabled="{Binding IsEditing}" />
+                                        <TextBlock Text="Mapping" Margin="0,8,0,0" />
+                                        <TextBox Text="{Binding ModelMapping, Mode=TwoWay}" IsEnabled="{Binding IsEditing}" />
+                                        <TextBlock Text="Models" Margin="0,8,0,0" />
+                                        <ItemsControl ItemsSource="{Binding ModelsList}" Margin="0,4,0,0">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding}" />
+                                                        <Button Content="删除" Command="{Binding DataContext.RemoveModelFromSelectedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="6,0,0,0" Visibility="{Binding DataContext.SelectedChannel.IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}" IsEnabled="{Binding DataContext.SelectedChannel.IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                            <TextBox x:Name="NewModelTextBox" Width="200" IsEnabled="{Binding IsEditing}" Text="{Binding DataContext.NewModelText, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=TwoWay}" />
+                                                <Button Content="添加" Command="{Binding DataContext.AddModelToSelectedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding DataContext.NewModelText, RelativeSource={RelativeSource AncestorType=UserControl}}" Margin="6,0,0,0" IsEnabled="{Binding DataContext.SelectedChannel.IsEditing, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                        </StackPanel>
+                                        <TextBlock Text="分组" Margin="0,8,0,0" />
+                                        <TextBox Text="{Binding Group, Mode=TwoWay}" IsEnabled="{Binding IsEditing}" />
+                                        <TextBlock Text="优先级" Margin="0,8,0,0" />
+                                        <TextBox Text="{Binding Priority, Mode=TwoWay}" IsEnabled="{Binding IsEditing}" />
+                                        <TextBlock Text="权重" Margin="0,8,0,0" />
+                                        <TextBox Text="{Binding Weight, Mode=TwoWay}" IsEnabled="{Binding IsEditing}" />
+                                    </StackPanel>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </Border>
+                        </DataTemplate>
+                    </ContentControl.ContentTemplate>
+                </ContentControl>
+            </Grid>
+            
         </DockPanel>
     </Grid>
 </UserControl>

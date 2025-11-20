@@ -36,9 +36,9 @@ public class MainWindowViewModel : ObservableObject
         }
     }
 
-    private UserControl _currentPage = null!;
+    private UserControl? _currentPage = null;
 
-    public UserControl CurrentPage
+    public UserControl? CurrentPage
     {
         get => _currentPage;
         set => SetProperty(ref _currentPage, value);

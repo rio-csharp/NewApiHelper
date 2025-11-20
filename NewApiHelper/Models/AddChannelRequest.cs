@@ -19,6 +19,9 @@ public class AddChannelRequest
     [JsonPropertyName("models")]
     public string? Models { get; set; }
 
+    [JsonPropertyName("model_mapping")]
+    public string? ModelMapping { get; set; }
+
     [JsonPropertyName("groups")]
     public List<string> Groups { get; set; } = new() { "default" };
 

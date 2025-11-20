@@ -15,5 +15,7 @@ public partial class ChannelManagementView : UserControl
         InitializeComponent();
         _viewModel = viewModel;
         DataContext = _viewModel;
+        // 自动加载渠道列表
+        _ = _viewModel.LoadChannelsAsync();
     }
 }

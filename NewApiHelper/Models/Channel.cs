@@ -25,6 +25,9 @@ public class Channel
     [JsonPropertyName("models")]
     public string Models { get; set; } = string.Empty;
 
+    [JsonPropertyName("key")]
+    public string? Key { get; set; }
+
     [JsonPropertyName("group")]
     public string Group { get; set; } = string.Empty;
 
