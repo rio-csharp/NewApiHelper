@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="NewApiHelper.Tests/NewApiHelper.Tests.csproj" Id="8a65dead-6738-43e6-a182-0879f0602087" />
+  <Project Path="NewApiHelper/NewApiHelper.csproj" Id="5af1b3b3-587e-44d3-8dfe-c1a43145d384" />
+</Solution>
