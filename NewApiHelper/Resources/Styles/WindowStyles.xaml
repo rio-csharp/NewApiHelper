@@ -2,67 +2,67 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- 主窗口背景色 -->
-    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFF5F9FF"/>
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFF5F9FF" />
     <!-- 极浅蓝白 -->
 
     <!-- 侧边栏背景 -->
-    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#FFD0E6FF"/>
+    <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#FFD0E6FF" />
     <!-- 浅蓝 -->
     <LinearGradientBrush x:Key="SidebarSelectedBrush" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#FF4A90E2" Offset="0.0"/>
-        <GradientStop Color="#FF68AFFF" Offset="1.0"/>
+        <GradientStop Color="#FF4A90E2" Offset="0.0" />
+        <GradientStop Color="#FF68AFFF" Offset="1.0" />
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="SidebarHoverBrush" Color="#FFA3C1FF"/>
+    <SolidColorBrush x:Key="SidebarHoverBrush" Color="#FFA3C1FF" />
     <!-- 浅亮蓝 -->
-    <SolidColorBrush x:Key="SidebarForegroundBrush" Color="#FF2E3B52"/>
+    <SolidColorBrush x:Key="SidebarForegroundBrush" Color="#FF2E3B52" />
     <!-- 深蓝灰 -->
 
     <!-- 主体内容背景 -->
-    <SolidColorBrush x:Key="ContentBackgroundBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ContentBackgroundBrush" Color="#FFFFFFFF" />
     <!-- 纯白 -->
-    <SolidColorBrush x:Key="ContentForegroundBrush" Color="#FF1B2A4D"/>
+    <SolidColorBrush x:Key="ContentForegroundBrush" Color="#FF1B2A4D" />
     <!-- 深蓝 -->
 
     <!-- 侧边栏菜单项样式 -->
     <Style TargetType="ListBox" x:Key="SidebarListBoxStyle">
-        <Setter Property="Background" Value="{StaticResource SidebarBackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{StaticResource SidebarForegroundBrush}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden"/>
-        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="Background" Value="{StaticResource SidebarBackgroundBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SidebarForegroundBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Hidden" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="ListBoxItem">
-                    <Setter Property="Padding" Value="16 14"/>
-                    <Setter Property="Margin" Value="0 3"/>
-                    <Setter Property="FontSize" Value="15"/>
-                    <Setter Property="FontWeight" Value="SemiBold"/>
-                    <Setter Property="Cursor" Value="Hand"/>
-                    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                    <Setter Property="VerticalContentAlignment" Value="Center"/>
-                    <Setter Property="Foreground" Value="{StaticResource SidebarForegroundBrush}"/>
-                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="Padding" Value="16 14" />
+                    <Setter Property="Margin" Value="0 3" />
+                    <Setter Property="FontSize" Value="15" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                    <Setter Property="Cursor" Value="Hand" />
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                    <Setter Property="Foreground" Value="{StaticResource SidebarForegroundBrush}" />
+                    <Setter Property="Background" Value="Transparent" />
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ListBoxItem">
                                 <Border x:Name="Bd" CornerRadius="8"
                         Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                    <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                     VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsSelected" Value="True">
                                         <Setter TargetName="Bd" Property="Background" Value="{StaticResource SidebarSelectedBrush}" />
-                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Foreground" Value="White" />
                                     </Trigger>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource SidebarHoverBrush}"/>
-                                        <Setter Property="Foreground" Value="#FF002366"/>
+                                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource SidebarHoverBrush}" />
+                                        <Setter Property="Foreground" Value="#FF002366" />
                                         <!-- 深蓝 -->
                                     </Trigger>
                                     <Trigger Property="IsEnabled" Value="False">
-                                        <Setter Property="Foreground" Value="#FFB0B0B0"/>
+                                        <Setter Property="Foreground" Value="#FFB0B0B0" />
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -77,7 +77,6 @@
     <Style TargetType="ContentControl" x:Key="MainContentStyle">
         <Setter Property="Background" Value="{StaticResource ContentBackgroundBrush}" />
         <Setter Property="Foreground" Value="{StaticResource ContentForegroundBrush}" />
-        <Setter Property="Padding" Value="24"/>
+        <Setter Property="Padding" Value="24" />
     </Style>
-
 </ResourceDictionary>

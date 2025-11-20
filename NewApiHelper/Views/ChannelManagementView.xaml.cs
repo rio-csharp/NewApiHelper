@@ -1,24 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using NewApiHelper.ViewModels;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace NewApiHelper.Views;
+
 /// <summary>
 /// Interaction logic for ChannelManagementView.xaml
 /// </summary>
 public partial class ChannelManagementView : UserControl
 {
-    public ChannelManagementView()
+    private readonly ChannelManagementViewModel _viewModel;
+
+    public ChannelManagementView(ChannelManagementViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
+        DataContext = _viewModel;
     }
 }

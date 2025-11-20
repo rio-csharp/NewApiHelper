@@ -1,13 +1,55 @@
 ﻿<UserControl x:Class="NewApiHelper.Views.ChannelManagementView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:NewApiHelper.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="ChannelManagement" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <!-- 全局加载指示器 -->
+        <ProgressBar IsIndeterminate="True" VerticalAlignment="Top" Height="4"
+                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
+        <DockPanel>
+            <!-- 顶部工具栏 -->
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10">
+                <Button Content="刷新列表" Command="{Binding LoadChannelsCommand}" Margin="0,0,10,0" />
+                <Button Content="新增渠道" Command="{Binding AddChannelCommand}" Margin="0,0,10,0" />
+                <Button Content="编辑选中" Command="{Binding EditChannelCommand}" />
+                <Button Content="删除选中" Command="{Binding DeleteChannelCommand}" Margin="10,0,0,0" />
+                <Button Content="测试选中" Command="{Binding TestChannelCommand}" Margin="10,0,0,0" />
+            </StackPanel>
+
+            <!-- 渠道数据表格 -->
+            <DataGrid ItemsSource="{Binding Channels}"
+                      SelectedItem="{Binding SelectedChannel, Mode=TwoWay}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      SelectionMode="Single"
+                      CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" />
+                    <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="*" />
+                    <DataGridTextColumn Header="类型" Binding="{Binding Type}" Width="60" />
+                    <DataGridTextColumn Header="分组" Binding="{Binding Group}" Width="100" />
+                    <DataGridTextColumn Header="状态" Binding="{Binding StatusText}" Width="60" />
+                    <DataGridTextColumn Header="优先级" Binding="{Binding Priority}" Width="70" />
+                    <DataGridTextColumn Header="响应时间(ms)" Binding="{Binding ResponseTime}" Width="100" />
+                    <DataGridTextColumn Header="最近测试" Binding="{Binding TestTimeDisplay}" Width="150" />
+                    <DataGridTemplateColumn Header="测试结果/状态" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock Text="{Binding TestStatusMessage}" VerticalAlignment="Center"
+                                               Visibility="{Binding IsBusy, Converter={StaticResource InvertedBooleanToVisibilityConverter}}" />
+                                    <ProgressBar IsIndeterminate="True" Height="16"
+                                                 Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
     </Grid>
 </UserControl>

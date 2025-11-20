@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using NewApiHelper.Views;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
@@ -8,14 +9,21 @@ namespace NewApiHelper.ViewModels;
 public class MenuItemModel
 {
     public string DisplayName { get; set; }
-    public string PageKey { get; set; }  // 用于标识子页面，比如："ChannelManagement"
+    public string PageKey { get; set; }
+
+    public MenuItemModel(string displayName = "", string pageKey = "")
+    {
+        DisplayName = displayName;
+        PageKey = pageKey;
+    }
 }
 
 public class MainWindowViewModel : ObservableObject
 {
     public ObservableCollection<MenuItemModel> MenuItems { get; }
 
-    private MenuItemModel _selectedMenuItem;
+    private MenuItemModel _selectedMenuItem = null!;
+
     public MenuItemModel SelectedMenuItem
     {
         get => _selectedMenuItem;
@@ -28,15 +36,19 @@ public class MainWindowViewModel : ObservableObject
         }
     }
 
-    private UserControl _currentPage;
+    private UserControl _currentPage = null!;
+
     public UserControl CurrentPage
     {
         get => _currentPage;
         set => SetProperty(ref _currentPage, value);
     }
 
-    public MainWindowViewModel()
+    private readonly IServiceProvider _serviceProvider;
+
+    public MainWindowViewModel(IServiceProvider serviceProvider)
     {
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         MenuItems = new ObservableCollection<MenuItemModel>
         {
             new MenuItemModel { DisplayName = "渠道管理", PageKey = "ChannelManagement" },
@@ -45,28 +57,31 @@ public class MainWindowViewModel : ObservableObject
             new MenuItemModel { DisplayName = "同步日志", PageKey = "SyncLog" },
         };
 
-        SelectedMenuItem = MenuItems.FirstOrDefault();
+        SelectedMenuItem = MenuItems.First();
     }
 
     private void UpdateCurrentPage()
     {
         if (SelectedMenuItem == null) return;
 
-        // 这里根据PageKey实例化对应的UserControl页面
         switch (SelectedMenuItem.PageKey)
         {
             case "ChannelManagement":
-                CurrentPage = new ChannelManagementView();  // 你子页面UserControl
+                CurrentPage = _serviceProvider.GetRequiredService<ChannelManagementView>();
                 break;
+
             case "CollectionConfig":
-                CurrentPage = new CollectionConfigView();
+                CurrentPage = _serviceProvider.GetRequiredService<CollectionConfigView>();
                 break;
+
             case "DataDisplay":
-                CurrentPage = new DataDisplayView();
+                CurrentPage = _serviceProvider.GetRequiredService<DataDisplayView>();
                 break;
+
             case "SyncLog":
-                CurrentPage = new SyncLogView();
+                CurrentPage = _serviceProvider.GetRequiredService<SyncLogView>();
                 break;
+
             default:
                 CurrentPage = null;
                 break;
