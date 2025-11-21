@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using NewApiHelper.ViewModels;
+using System.Windows.Controls;
 
 namespace NewApiHelper.Views;
 
@@ -7,8 +8,14 @@ namespace NewApiHelper.Views;
 /// </summary>
 public partial class CollectionConfigView : UserControl
 {
-    public CollectionConfigView()
+    private readonly UpStreamChannelManagementViewModel _viewModel;
+
+    public CollectionConfigView(UpStreamChannelManagementViewModel viewModel)
     {
         InitializeComponent();
+        _viewModel = viewModel;
+        DataContext = _viewModel;
+        // 自动加载渠道列表
+        _ = _viewModel.LoadChannelsAsync();
     }
 }

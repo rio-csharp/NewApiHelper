@@ -52,7 +52,7 @@ public class MainWindowViewModel : ObservableObject
         MenuItems = new ObservableCollection<MenuItemModel>
         {
             new MenuItemModel { DisplayName = "渠道管理", PageKey = "ChannelManagement" },
-            new MenuItemModel { DisplayName = "采集配置", PageKey = "CollectionConfig" },
+            new MenuItemModel { DisplayName = "上游管理", PageKey = "CollectionConfig" },
             new MenuItemModel { DisplayName = "数据展示", PageKey = "DataDisplay" },
             new MenuItemModel { DisplayName = "同步日志", PageKey = "SyncLog" },
         };

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NewApiHelper.Data;
 using NewApiHelper.Extensions;
 using NewApiHelper.Services;
 using NewApiHelper.ViewModels;
@@ -23,6 +24,13 @@ public partial class App : Application
         var services = new ServiceCollection();
         ConfigureServices(services);
         serviceProvider = services.BuildServiceProvider();
+
+        // 确保数据库和表存在
+        using (var scope = serviceProvider.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            dbContext.Database.EnsureCreated();
+        }
 
         _logger = serviceProvider.GetRequiredService<ILogger<App>>();
 
@@ -67,7 +75,9 @@ public partial class App : Application
         services.AddChannelHttpClient(configuration["Api:BaseUrl"] ?? throw new ArgumentNullException("Api:BaseUrl"),
             configuration["Api:Token"] ?? throw new ArgumentNullException("Api:Token"),
             configuration["Api:UserId"] ?? throw new ArgumentNullException("Api:UserId"));
+        services.AddDatabase(configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("DefaultConnection"));
         services.AddTransient<ChannelManagementViewModel>();
+        services.AddTransient<UpStreamChannelManagementViewModel>();
         services.AddTransient<ChannelManagementView>();
         services.AddTransient<CollectionConfigView>();
         services.AddTransient<DataDisplayView>();
