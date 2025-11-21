@@ -66,7 +66,7 @@
             <!-- 侧边栏布局：左侧渠道列表，右侧详情编辑 -->
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="250" />
+                    <ColumnDefinition Width="280" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -74,10 +74,15 @@
                 </Grid.RowDefinitions>
 
                 <!-- 左侧：渠道列表 -->
-                <DockPanel Grid.Row="0" Grid.Column="0" LastChildFill="True" Background="#FFF8F9FA">
-                    <TextBlock Text="渠道列表" FontSize="16" FontWeight="Bold" Margin="12,12,12,8" DockPanel.Dock="Top" Foreground="#FF2E3B52" />
+                <Grid Grid.Row="0" Grid.Column="0" Background="#FFF8F9FA">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="渠道列表" FontSize="16" FontWeight="Bold" Margin="12,12,12,8" Foreground="#FF2E3B52" />
 
-                    <ListView ItemsSource="{Binding Channels}" SelectedItem="{Binding SelectedChannel, Mode=TwoWay}" Margin="6"
+                    <ListView Grid.Row="1" ItemsSource="{Binding Channels}" SelectedItem="{Binding SelectedChannel, Mode=TwoWay}" Margin="6"
                               IsSynchronizedWithCurrentItem="True" Background="Transparent" BorderThickness="0">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
@@ -111,8 +116,8 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <Button Content="➕ 新增渠道" Command="{Binding AddChannelCommand}" Margin="12" DockPanel.Dock="Bottom" Style="{StaticResource ActionButtonStyle}" FontSize="14" Visibility="{Binding HasChannels, Converter={StaticResource InvertedBooleanToVisibilityConverter}}" />
-                </DockPanel>
+                    <Button Grid.Row="2" Content="➕ 新增渠道" Command="{Binding AddChannelCommand}" Margin="12" Style="{StaticResource ActionButtonStyle}" FontSize="14" Visibility="{Binding HasChannels, Converter={StaticResource InvertedBooleanToVisibilityConverter}}" />
+                </Grid>
 
                 <!-- 右侧：详情/编辑面板，使用 ContentControl 绑定 SelectedChannel -->
                 <ContentControl Grid.Row="0" Grid.Column="1" Content="{Binding SelectedChannel}" Margin="12">
