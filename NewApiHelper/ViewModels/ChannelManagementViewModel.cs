@@ -2,15 +2,13 @@
 using CommunityToolkit.Mvvm.Input;
 using NewApiHelper.Services;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Collections.Generic;
-using System.Windows;
 
 namespace NewApiHelper.ViewModels;
 
 public partial class ChannelManagementViewModel : ObservableObject
 {
     private readonly IChannelService _channelService;
+    private readonly IMessageService _messageService;
 
     [ObservableProperty]
     private ObservableCollection<ChannelItemViewModel> _channels;
@@ -31,9 +29,10 @@ public partial class ChannelManagementViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(AddModelToSelectedCommand))]
     private string _newModelText = string.Empty;
 
-    public ChannelManagementViewModel(IChannelService channelService)
+    public ChannelManagementViewModel(IChannelService channelService, IMessageService messageService)
     {
-        _channelService = channelService;
+        _channelService = channelService ?? throw new ArgumentNullException(nameof(channelService));
+        _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         _channels = new ObservableCollection<ChannelItemViewModel>();
         // 监听 SelectedChannel 的变化来更新 IsChannelSelected
         this.PropertyChanged += (s, e) =>
@@ -41,18 +40,33 @@ public partial class ChannelManagementViewModel : ObservableObject
             if (e.PropertyName == nameof(SelectedChannel))
             {
                 IsChannelSelected = SelectedChannel != null;
-                // Update command enabled state when SelectedChannel changes
-                LoadChannelsCommand.NotifyCanExecuteChanged();
-                EditChannelCommand.NotifyCanExecuteChanged();
-                StartEditChannelCommand.NotifyCanExecuteChanged();
-                DeleteChannelCommand.NotifyCanExecuteChanged();
-                TestChannelCommand.NotifyCanExecuteChanged();
-                SaveChannelCommand.NotifyCanExecuteChanged();
-                CancelEditCommand.NotifyCanExecuteChanged();
-                AddModelToSelectedCommand.NotifyCanExecuteChanged();
-                RemoveModelFromSelectedCommand.NotifyCanExecuteChanged();
+                UpdateCommandStates();
             }
         };
+    }
+
+    private void UpdateCommandStates()
+    {
+        LoadChannelsCommand.NotifyCanExecuteChanged();
+        EditChannelCommand.NotifyCanExecuteChanged();
+        StartEditChannelCommand.NotifyCanExecuteChanged();
+        DeleteChannelCommand.NotifyCanExecuteChanged();
+        TestChannelCommand.NotifyCanExecuteChanged();
+        SaveChannelCommand.NotifyCanExecuteChanged();
+        CancelEditCommand.NotifyCanExecuteChanged();
+        AddModelToSelectedCommand.NotifyCanExecuteChanged();
+        RemoveModelFromSelectedCommand.NotifyCanExecuteChanged();
+        CopyChannelCommand.NotifyCanExecuteChanged();
+    }
+
+    private void ShowErrorMessage(string message)
+    {
+        _messageService.ShowError(message);
+    }
+
+    private bool ShowConfirmation(string message, string title = "确认")
+    {
+        return _messageService.ShowConfirmation(message, title);
     }
 
     [RelayCommand(CanExecute = nameof(CanAddModelToSelected))]
@@ -101,13 +115,7 @@ public partial class ChannelManagementViewModel : ObservableObject
         }
 
         // Update commands availability
-        LoadChannelsCommand.NotifyCanExecuteChanged();
-        EditChannelCommand.NotifyCanExecuteChanged();
-        StartEditChannelCommand.NotifyCanExecuteChanged();
-        DeleteChannelCommand.NotifyCanExecuteChanged();
-        TestChannelCommand.NotifyCanExecuteChanged();
-        SaveChannelCommand.NotifyCanExecuteChanged();
-        CancelEditCommand.NotifyCanExecuteChanged();
+        UpdateCommandStates();
     }
 
     private void SelectedChannel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -115,13 +123,7 @@ public partial class ChannelManagementViewModel : ObservableObject
         // 当 SelectedChannel 的编辑状态或其它导致命令可用性变化的属性改变时，刷新命令状态
         if (e.PropertyName == nameof(ChannelItemViewModel.IsEditing) || e.PropertyName == nameof(ChannelItemViewModel.IsDirty))
         {
-            SaveChannelCommand.NotifyCanExecuteChanged();
-            CancelEditCommand.NotifyCanExecuteChanged();
-            DeleteChannelCommand.NotifyCanExecuteChanged();
-            TestChannelCommand.NotifyCanExecuteChanged();
-            StartEditChannelCommand.NotifyCanExecuteChanged();
-            AddModelToSelectedCommand.NotifyCanExecuteChanged();
-            RemoveModelFromSelectedCommand.NotifyCanExecuteChanged();
+            UpdateCommandStates();
         }
     }
 
@@ -157,12 +159,12 @@ public partial class ChannelManagementViewModel : ObservableObject
             }
             else
             {
-                MessageBox.Show(response.Message ?? "无法加载渠道详情");
+                ShowErrorMessage(response.Message ?? "无法加载渠道详情");
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            MessageBox.Show($"加载渠道详情时发生异常: {ex.Message}");
+            ShowErrorMessage($"加载渠道详情时发生异常: {ex.Message}");
         }
     }
 
@@ -196,13 +198,12 @@ public partial class ChannelManagementViewModel : ObservableObject
             else
             {
                 // 显示错误信息
-                MessageBox.Show(apiResponse.Message ?? "加载渠道列表失败。");
+                ShowErrorMessage(apiResponse.Message ?? "加载渠道列表失败。");
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            // 记录日志并显示错误
-            MessageBox.Show($"发生异常: {ex.Message}");
+            ShowErrorMessage($"加载渠道列表时发生异常: {ex.Message}");
         }
         finally
         {
@@ -213,39 +214,17 @@ public partial class ChannelManagementViewModel : ObservableObject
     [RelayCommand]
     public void AddChannel()
     {
-        // Copy from current selection if available
-        Models.Channel newChannel;
-        if (SelectedChannel != null)
+        var newChannel = new Models.Channel
         {
-            var src = SelectedChannel.GetModel();
-            newChannel = new Models.Channel
-            {
-                Id = 0,
-                Name = src.Name + "_Copy",
-                Type = src.Type,
-                Group = src.Group,
-                Priority = src.Priority,
-                Weight = src.Weight,
-                BaseUrl = src.BaseUrl,
-                Models = src.Models,
-                ModelMapping = src.ModelMapping,
-                Key = src.Key
-            };
-        }
-        else
-        {
-            newChannel = new Models.Channel
-            {
-                Id = 0,
-                Name = "",
-                Type = 0,
-                Group = "default",
-                Priority = 0,
-                Weight = 0,
-                BaseUrl = string.Empty,
-                Models = string.Empty
-            };
-        }
+            Id = 0,
+            Name = "",
+            Type = 0,
+            Group = "default",
+            Priority = 0,
+            Weight = 0,
+            BaseUrl = string.Empty,
+            Models = string.Empty
+        };
 
         var vm = new ChannelItemViewModel(newChannel)
         {
@@ -255,6 +234,37 @@ public partial class ChannelManagementViewModel : ObservableObject
         Channels.Insert(0, vm);
         SelectedChannel = vm;
     }
+
+    [RelayCommand(CanExecute = nameof(CanCopyChannel))]
+    public void CopyChannel()
+    {
+        if (SelectedChannel == null) return;
+
+        var src = SelectedChannel.GetModel();
+        var newChannel = new Models.Channel
+        {
+            Id = 0,
+            Name = src.Name + "_Copy",
+            Type = src.Type,
+            Group = src.Group,
+            Priority = src.Priority,
+            Weight = src.Weight,
+            BaseUrl = src.BaseUrl,
+            Models = src.Models,
+            ModelMapping = src.ModelMapping,
+            Key = src.Key
+        };
+
+        var vm = new ChannelItemViewModel(newChannel)
+        {
+            IsNew = true,
+            IsEditing = true
+        };
+        Channels.Insert(0, vm);
+        SelectedChannel = vm;
+    }
+
+    private bool CanCopyChannel() => SelectedChannel != null;
 
     [RelayCommand(CanExecute = nameof(CanStartEdit))]
     public void StartEditChannel()
@@ -274,12 +284,12 @@ public partial class ChannelManagementViewModel : ObservableObject
             {
                 if (string.IsNullOrWhiteSpace(SelectedChannel.Name))
                 {
-                    MessageBox.Show("渠道名称不能为空");
+                    ShowErrorMessage("渠道名称不能为空");
                     return;
                 }
                 if (string.IsNullOrWhiteSpace(SelectedChannel.Key))
                 {
-                    MessageBox.Show("渠道 Key 是必需的");
+                    ShowErrorMessage("渠道 Key 是必需的");
                     return;
                 }
                 var addReq = SelectedChannel.ToAddRequest();
@@ -296,7 +306,7 @@ public partial class ChannelManagementViewModel : ObservableObject
                 }
                 else
                 {
-                    MessageBox.Show(response.Message ?? "新增渠道失败");
+                    ShowErrorMessage(response.Message ?? "新增渠道失败");
                 }
             }
             else
@@ -313,13 +323,13 @@ public partial class ChannelManagementViewModel : ObservableObject
                 }
                 else
                 {
-                    MessageBox.Show(response.Message ?? "更新渠道失败");
+                    ShowErrorMessage(response.Message ?? "更新渠道失败");
                 }
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
-            MessageBox.Show($"保存渠道时发生异常: {ex.Message}");
+            ShowErrorMessage($"保存渠道时发生异常: {ex.Message}");
         }
     }
 
@@ -359,29 +369,32 @@ public partial class ChannelManagementViewModel : ObservableObject
     public async Task DeleteChannelAsync()
     {
         if (SelectedChannel == null) return;
-        if (MessageBox.Show($"确定要删除渠道 '{SelectedChannel.Name}' 吗？", "确认删除", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+        var result = ShowConfirmation($"确定要删除渠道 '{SelectedChannel.Name}' 吗？", "确认删除");
+        if (!result) return;
+
+        SelectedChannel.IsBusy = true;
+        try
         {
-            SelectedChannel.IsBusy = true;
-            try
+            var response = await _channelService.DeleteChannelAsync(SelectedChannel.Id);
+            if (response.Success)
             {
-                var response = await _channelService.DeleteChannelAsync(SelectedChannel.Id);
-                if (response.Success)
-                {
-                    Channels.Remove(SelectedChannel);
-                }
-                else
-                {
-                    MessageBox.Show(response.Message ?? "删除失败。");
-                }
+                Channels.Remove(SelectedChannel);
+                SelectedChannel = Channels.FirstOrDefault();
             }
-            catch (System.Exception ex)
+            else
             {
-                MessageBox.Show($"删除时发生异常: {ex.Message}");
+                ShowErrorMessage(response.Message ?? "删除失败。");
             }
-            finally
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"删除时发生异常: {ex.Message}");
+        }
+        finally
+        {
+            if (SelectedChannel != null)
             {
-                // 在 finally 中总是将 IsBusy 设置为 false，即使SelectedChannel可能已被删除
-                // 这是一个简化处理，更复杂的场景可能需要不同策略
+                SelectedChannel.IsBusy = false;
             }
         }
     }
@@ -406,7 +419,7 @@ public partial class ChannelManagementViewModel : ObservableObject
                 SelectedChannel.UpdateTestResult(0, false, $"失败: {response.Message}");
             }
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             SelectedChannel.UpdateTestResult(0, false, $"测试异常: {ex.Message}");
         }

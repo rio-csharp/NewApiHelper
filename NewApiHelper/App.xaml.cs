@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NewApiHelper.Extensions;
+using NewApiHelper.Services;
 using NewApiHelper.ViewModels;
 using NewApiHelper.Views;
 using Serilog;
@@ -73,5 +74,6 @@ public partial class App : Application
         services.AddTransient<SyncLogView>();
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<MainWindow>();
+        services.AddTransient<IMessageService, MessageService>();
     }
 }

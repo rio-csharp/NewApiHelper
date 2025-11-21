@@ -5,12 +5,10 @@ namespace NewApiHelper.ViewModels;
 
 public partial class ChannelItemViewModel : ObservableObject
 {
-    // 核心数据模型
     private readonly Channel _channel;
 
     public int Id => _channel.Id;
 
-    // 可编辑属性：直接读写底层 _channel 并通知变更
     public string Name
     {
         get => _channel.Name;
@@ -67,15 +65,12 @@ public partial class ChannelItemViewModel : ObservableObject
         }
     }
 
-    // --- UI相关属性和计算属性 ---
-
     [ObservableProperty]
     private bool _isBusy; // 用于表示此行项目是否正在执行操作（如测试、删除）
 
     [ObservableProperty]
     private string? _testStatusMessage; // 用于显示测试结果
 
-    // 编辑相关标志
     [ObservableProperty]
     private bool _isNew;
 
@@ -87,7 +82,6 @@ public partial class ChannelItemViewModel : ObservableObject
 
     public int Status => _channel.Status;
 
-    // 将状态码转换为可读文本
     public string StatusText => Status switch
     {
         1 => "启用",
