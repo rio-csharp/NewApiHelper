@@ -1,15 +1,22 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
 using NewApiHelper.Views;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
 
 namespace NewApiHelper.ViewModels;
 
+public static class PageKeys
+{
+    public const string ChannelManagement = "ChannelManagement";
+    public const string UpstreamManagement = "UpstreamManagement";
+    public const string DataDisplay = "DataDisplay";
+    public const string SyncLog = "SyncLog";
+}
+
 public class MenuItemModel
 {
-    public string DisplayName { get; set; }
-    public string PageKey { get; set; }
+    public string DisplayName { get; set; } = string.Empty;
+    public string PageKey { get; set; } = string.Empty;
 
     public MenuItemModel(string displayName = "", string pageKey = "")
     {
@@ -36,7 +43,7 @@ public class MainWindowViewModel : ObservableObject
         }
     }
 
-    private UserControl? _currentPage = null;
+    private UserControl? _currentPage;
 
     public UserControl? CurrentPage
     {
@@ -51,40 +58,47 @@ public class MainWindowViewModel : ObservableObject
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         MenuItems = new ObservableCollection<MenuItemModel>
         {
-            new MenuItemModel { DisplayName = "渠道管理", PageKey = "ChannelManagement" },
-            new MenuItemModel { DisplayName = "上游管理", PageKey = "CollectionConfig" },
-            new MenuItemModel { DisplayName = "数据展示", PageKey = "DataDisplay" },
-            new MenuItemModel { DisplayName = "同步日志", PageKey = "SyncLog" },
+            new MenuItemModel { DisplayName = "渠道管理", PageKey = PageKeys.ChannelManagement },
+            new MenuItemModel { DisplayName = "上游管理", PageKey = PageKeys.UpstreamManagement },
+            new MenuItemModel { DisplayName = "数据展示", PageKey = PageKeys.DataDisplay },
+            new MenuItemModel { DisplayName = "同步日志", PageKey = PageKeys.SyncLog },
         };
-
-        SelectedMenuItem = MenuItems.First();
+        // 默认选中第一个菜单项
+        if (MenuItems.Count > 0)
+            SelectedMenuItem = MenuItems[0];
     }
 
     private void UpdateCurrentPage()
     {
-        if (SelectedMenuItem == null) return;
+        if (SelectedMenuItem == null)
+        {
+            CurrentPage = null;
+            return;
+        }
 
+        object? page = null;
         switch (SelectedMenuItem.PageKey)
         {
-            case "ChannelManagement":
-                CurrentPage = _serviceProvider.GetRequiredService<ChannelManagementView>();
+            case PageKeys.ChannelManagement:
+                page = _serviceProvider.GetService(typeof(ChannelManagementView));
                 break;
 
-            case "CollectionConfig":
-                CurrentPage = _serviceProvider.GetRequiredService<CollectionConfigView>();
+            case PageKeys.UpstreamManagement:
+                page = _serviceProvider.GetService(typeof(UpstreamManagementView));
                 break;
 
-            case "DataDisplay":
-                CurrentPage = _serviceProvider.GetRequiredService<DataDisplayView>();
+            case PageKeys.DataDisplay:
+                page = _serviceProvider.GetService(typeof(DataDisplayView));
                 break;
 
-            case "SyncLog":
-                CurrentPage = _serviceProvider.GetRequiredService<SyncLogView>();
+            case PageKeys.SyncLog:
+                page = _serviceProvider.GetService(typeof(SyncLogView));
                 break;
 
             default:
-                CurrentPage = null;
+                page = null;
                 break;
         }
+        CurrentPage = page as UserControl;
     }
 }

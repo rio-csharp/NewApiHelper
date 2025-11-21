@@ -1,7 +1,6 @@
 using FluentAssertions;
 using NewApiHelper.Utilities.Converters;
 using System.Windows;
-using System.Windows.Media;
 
 namespace NewApiHelper.Tests.Utilities.Converters;
 

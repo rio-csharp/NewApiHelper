@@ -1,16 +1,16 @@
-﻿using NewApiHelper.ViewModels;
+using NewApiHelper.ViewModels;
 using System.Windows.Controls;
 
 namespace NewApiHelper.Views;
 
 /// <summary>
-/// Interaction logic for CollectionConfigView.xaml
+/// Interaction logic for UpstreamManagementView.xaml
 /// </summary>
-public partial class CollectionConfigView : UserControl
+public partial class UpstreamManagementView : UserControl
 {
     private readonly UpStreamChannelManagementViewModel _viewModel;
 
-    public CollectionConfigView(UpStreamChannelManagementViewModel viewModel)
+    public UpstreamManagementView(UpStreamChannelManagementViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;

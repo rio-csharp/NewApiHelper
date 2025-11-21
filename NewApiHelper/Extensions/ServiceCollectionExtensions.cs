@@ -14,9 +14,11 @@ public static class ServiceCollectionExtensions
         {
             client.BaseAddress = new Uri(baseApiUrl);
             client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            if (!client.DefaultRequestHeaders.Accept.Contains(new MediaTypeWithQualityHeaderValue("application/json")))
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            client.DefaultRequestHeaders.Add("New-Api-User", userId);
+            if (!client.DefaultRequestHeaders.Contains("New-Api-User"))
+                client.DefaultRequestHeaders.Add("New-Api-User", userId);
         });
         return services;
     }

@@ -36,7 +36,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         _channels = new ObservableCollection<UpStreamChannelItemViewModel>();
-        _channels.CollectionChanged += (s, e) => 
+        _channels.CollectionChanged += (s, e) =>
         {
             HasChannels = _channels.Count > 0;
             ShowAddButton = _channels.Count == 0;
@@ -73,7 +73,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
         return _messageService.ShowConfirmation(message, title);
     }
 
-    partial void OnSelectedChannelChanged(UpStreamChannelItemViewModel? oldValue, UpStreamChannelItemViewModel? newValue)
+    private partial void OnSelectedChannelChanged(UpStreamChannelItemViewModel? oldValue, UpStreamChannelItemViewModel? newValue)
     {
         // 当用户选择已存在的渠道，加载详细信息以便编辑
         if (oldValue != null)
@@ -258,7 +258,9 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
     }
 
     private bool CanStartEdit() => SelectedChannel != null && !SelectedChannel.IsEditing;
+
     private bool CanSaveChannel() => SelectedChannel != null && SelectedChannel.IsEditing;
+
     private bool CanCancelEdit() => SelectedChannel != null && SelectedChannel.IsEditing;
 
     [RelayCommand(CanExecute = nameof(IsChannelSelected))]

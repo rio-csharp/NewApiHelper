@@ -97,7 +97,7 @@ public partial class ChannelManagementViewModel : ObservableObject
 
     private bool CanEditSelected() => SelectedChannel != null && SelectedChannel.IsEditing;
 
-    partial void OnSelectedChannelChanged(ChannelItemViewModel? oldValue, ChannelItemViewModel? newValue)
+    private partial void OnSelectedChannelChanged(ChannelItemViewModel? oldValue, ChannelItemViewModel? newValue)
     {
         // 当用户选择已存在的渠道，加载详细信息以便编辑
         if (oldValue != null)
@@ -353,7 +353,9 @@ public partial class ChannelManagementViewModel : ObservableObject
     }
 
     private bool CanStartEdit() => SelectedChannel != null && !SelectedChannel.IsEditing;
+
     private bool CanSaveChannel() => SelectedChannel != null && SelectedChannel.IsEditing;
+
     private bool CanCancelEdit() => SelectedChannel != null && SelectedChannel.IsEditing;
 
     [RelayCommand(CanExecute = nameof(IsChannelSelected))]

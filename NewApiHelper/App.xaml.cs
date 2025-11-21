@@ -58,7 +58,7 @@ public partial class App : Application
     {
         var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT");
         var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory()) // 当前exe目录
+            .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
             .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
             .Build();
@@ -72,18 +72,26 @@ public partial class App : Application
             loggingBuilder.AddSerilog(Log.Logger, dispose: true);
         });
 
-        services.AddChannelHttpClient(configuration["Api:BaseUrl"] ?? throw new ArgumentNullException("Api:BaseUrl"),
-            configuration["Api:Token"] ?? throw new ArgumentNullException("Api:Token"),
-            configuration["Api:UserId"] ?? throw new ArgumentNullException("Api:UserId"));
-        services.AddDatabase(configuration.GetConnectionString("DefaultConnection") ?? throw new ArgumentNullException("DefaultConnection"));
+        string? apiBaseUrl = configuration["Api:BaseUrl"];
+        string? apiToken = configuration["Api:Token"];
+        string? apiUserId = configuration["Api:UserId"];
+        string? dbConn = configuration.GetConnectionString("DefaultConnection");
+        if (string.IsNullOrWhiteSpace(apiBaseUrl) || string.IsNullOrWhiteSpace(apiToken) || string.IsNullOrWhiteSpace(apiUserId) || string.IsNullOrWhiteSpace(dbConn))
+        {
+            MessageBox.Show("配置文件缺少必要的Api或数据库连接信息，请检查appsettings.json。", "配置错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            Environment.Exit(1);
+        }
+        services.AddChannelHttpClient(apiBaseUrl!, apiToken!, apiUserId!);
+        services.AddDatabase(dbConn!);
         services.AddTransient<ChannelManagementViewModel>();
         services.AddTransient<UpStreamChannelManagementViewModel>();
-        services.AddTransient<ChannelManagementView>();
-        services.AddTransient<CollectionConfigView>();
+        services.AddTransient<IMessageService, MessageService>();
+        // 优化View注入，自动注入ViewModel
+        services.AddTransient<ChannelManagementView>(sp => new ChannelManagementView(sp.GetRequiredService<ChannelManagementViewModel>()));
+        services.AddTransient<UpstreamManagementView>(sp => new UpstreamManagementView(sp.GetRequiredService<UpStreamChannelManagementViewModel>()));
         services.AddTransient<DataDisplayView>();
         services.AddTransient<SyncLogView>();
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<MainWindow>();
-        services.AddTransient<IMessageService, MessageService>();
     }
 }
