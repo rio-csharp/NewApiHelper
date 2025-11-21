@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using NewApiHelper.Services;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace NewApiHelper.ViewModels;
 
@@ -29,11 +30,15 @@ public partial class ChannelManagementViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(AddModelToSelectedCommand))]
     private string _newModelText = string.Empty;
 
+    [ObservableProperty]
+    private bool _hasChannels;
+
     public ChannelManagementViewModel(IChannelService channelService, IMessageService messageService)
     {
         _channelService = channelService ?? throw new ArgumentNullException(nameof(channelService));
         _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         _channels = new ObservableCollection<ChannelItemViewModel>();
+        _channels.CollectionChanged += OnChannelsChanged;
         // 监听 SelectedChannel 的变化来更新 IsChannelSelected
         this.PropertyChanged += (s, e) =>
         {
@@ -43,6 +48,11 @@ public partial class ChannelManagementViewModel : ObservableObject
                 UpdateCommandStates();
             }
         };
+    }
+
+    private void OnChannelsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        HasChannels = Channels.Any();
     }
 
     private void UpdateCommandStates()
@@ -97,7 +107,7 @@ public partial class ChannelManagementViewModel : ObservableObject
 
     private bool CanEditSelected() => SelectedChannel != null && SelectedChannel.IsEditing;
 
-    private partial void OnSelectedChannelChanged(ChannelItemViewModel? oldValue, ChannelItemViewModel? newValue)
+    partial void OnSelectedChannelChanged(ChannelItemViewModel? oldValue, ChannelItemViewModel? newValue)
     {
         // 当用户选择已存在的渠道，加载详细信息以便编辑
         if (oldValue != null)

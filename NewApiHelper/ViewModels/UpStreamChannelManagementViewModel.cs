@@ -73,7 +73,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
         return _messageService.ShowConfirmation(message, title);
     }
 
-    private partial void OnSelectedChannelChanged(UpStreamChannelItemViewModel? oldValue, UpStreamChannelItemViewModel? newValue)
+    partial void OnSelectedChannelChanged(UpStreamChannelItemViewModel? oldValue, UpStreamChannelItemViewModel? newValue)
     {
         // 当用户选择已存在的渠道，加载详细信息以便编辑
         if (oldValue != null)
