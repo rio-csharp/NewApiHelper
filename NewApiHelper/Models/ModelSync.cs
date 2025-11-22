@@ -1,9 +1,12 @@
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.CompilerServices;
 
 namespace NewApiHelper.Models;
 
-public class ModelSync
+public class ModelSync : INotifyPropertyChanged
 {
     [Key]
     public int Id { get; set; }
@@ -56,7 +59,7 @@ public class ModelSync
 
     public UpstreamGroup? UpstreamGroup { get; set; }
 
-    public ICollection<ModelTestResult> TestResults { get; set; } = new List<ModelTestResult>();
+    public ObservableCollection<ModelTestResult> TestResults { get; set; } = new();
 
     [NotMapped]
     public TestResultStatus LatestTestResult
@@ -69,6 +72,15 @@ public class ModelSync
     }
 
     public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public void NotifyLatestTestResultChanged() => OnPropertyChanged("LatestTestResult");
 }
 
 public enum QuotaType

@@ -5,6 +5,7 @@ using NewApiHelper.Data;
 using NewApiHelper.Models;
 using NewApiHelper.Services;
 using System.Collections.ObjectModel;
+using System.Threading;
 using System.Windows;
 
 namespace NewApiHelper.ViewModels;
@@ -13,6 +14,7 @@ public class ModelSyncViewModel : ObservableObject
 {
     private readonly AppDbContext _context;
     private readonly IModelSyncImportService _importService;
+    private readonly ITestService _testService;
 
     public ObservableCollection<ModelSync> Items { get; } = new();
     public ObservableCollection<ModelSync> FilteredItems { get; } = new();
@@ -30,6 +32,22 @@ public class ModelSyncViewModel : ObservableObject
     public IRelayCommand TestFailedCommand { get; }
 
     public ObservableCollection<ModelSync> SelectedModelSyncs { get; } = new();
+
+    private bool _isTesting;
+
+    public bool IsTesting
+    {
+        get => _isTesting;
+        set => SetProperty(ref _isTesting, value);
+    }
+
+    private string _testStatus = string.Empty;
+
+    public string TestStatus
+    {
+        get => _testStatus;
+        set => SetProperty(ref _testStatus, value);
+    }
 
     private Upstream? _selectedUpstream;
 
@@ -70,10 +88,11 @@ public class ModelSyncViewModel : ObservableObject
         }
     }
 
-    public ModelSyncViewModel(AppDbContext context, IModelSyncImportService importService)
+    public ModelSyncViewModel(AppDbContext context, IModelSyncImportService importService, ITestService testService)
     {
         _context = context;
         _importService = importService;
+        _testService = testService;
         RefreshCommand = new RelayCommand(async () => await RefreshAsync());
         ImportCommand = new RelayCommand(async () => await ImportAsync());
         SearchCommand = new RelayCommand(UpdateFilteredItems);
@@ -184,18 +203,50 @@ public class ModelSyncViewModel : ObservableObject
 
     private async Task TestAsync()
     {
-        if (!SelectedModelSyncs.Any()) return;
+        var modelsToTest = SelectedModelSyncs.ToList();
+        if (!modelsToTest.Any()) return;
 
-        await Task.WhenAll(SelectedModelSyncs.Select(m => TestModelAsync(m, "Test")));
-        await RefreshAsync();
+        IsTesting = true;
+        int completed = 0;
+        TestStatus = $"正在测试 0/{modelsToTest.Count}";
+
+        var tasks = modelsToTest.Select(async model =>
+        {
+            await TestModelAsync(model, "Test");
+            int current = Interlocked.Increment(ref completed);
+            TestStatus = $"正在测试 {current}/{modelsToTest.Count}";
+        }).ToList();
+
+        await Task.WhenAll(tasks);
+
+        IsTesting = false;
+        TestStatus = string.Empty;
     }
 
     private async Task TestFailedAsync()
     {
-        if (!SelectedModelSyncs.Any()) return;
+        var modelsToTest = SelectedModelSyncs.Where(m =>
+        {
+            var latestTest = m.TestResults.OrderByDescending(t => t.TestTime).FirstOrDefault();
+            return latestTest == null || latestTest.Status == TestResultStatus.Failed;
+        }).ToList();
+        if (!modelsToTest.Any()) return;
 
-        await Task.WhenAll(SelectedModelSyncs.Select(m => TestModelAsync(m, "TestFailed")));
-        await RefreshAsync();
+        IsTesting = true;
+        int completed = 0;
+        TestStatus = $"正在测试失败 0/{modelsToTest.Count}";
+
+        var tasks = modelsToTest.Select(async model =>
+        {
+            await TestModelAsync(model, "TestFailed");
+            int current = Interlocked.Increment(ref completed);
+            TestStatus = $"正在测试失败 {current}/{modelsToTest.Count}";
+        }).ToList();
+
+        await Task.WhenAll(tasks);
+
+        IsTesting = false;
+        TestStatus = string.Empty;
     }
 
     private async Task TestModelAsync(ModelSync model, string testType)
@@ -219,12 +270,20 @@ public class ModelSyncViewModel : ObservableObject
         }
         else
         {
-            // 在这里写真正的测试代码
-            status = TestResultStatus.Failed;
-            errorMessage = "测试失败（模拟）";
+            // 进行真正的测试
+            var serviceResult = await _testService.TestModelAsync(model.Upstream!, model.UpstreamGroup!, model.Name);
+            if (serviceResult.Success)
+            {
+                status = TestResultStatus.Success;
+            }
+            else
+            {
+                status = TestResultStatus.Failed;
+                errorMessage = serviceResult.ErrorMessage;
+            }
         }
 
-        var testResult = new ModelTestResult
+        var testRecord = new ModelTestResult
         {
             ModelSyncId = model.Id,
             Status = status,
@@ -232,8 +291,12 @@ public class ModelSyncViewModel : ObservableObject
             ErrorMessage = errorMessage
         };
 
-        _context.ModelTestResults.Add(testResult);
+        _context.ModelTestResults.Add(testRecord);
         await _context.SaveChangesAsync();
+
+        // 更新内存中的TestResults
+        model.TestResults.Add(testRecord);
+        model.NotifyLatestTestResultChanged();
     }
 
 }

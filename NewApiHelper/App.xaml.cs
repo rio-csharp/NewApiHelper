@@ -91,6 +91,7 @@ public partial class App : Application
         services.AddTransient<ModelSyncViewModel>();
         services.AddTransient<IMessageService, MessageService>();
         services.AddTransient<IModelSyncImportService, ModelSyncImportService>();
+        services.AddTransient<ITestService, TestService>();
         // 优化View注入，自动注入ViewModel
         services.AddTransient<ChannelManagementView>(sp => new ChannelManagementView(sp.GetRequiredService<ChannelManagementViewModel>()));
         services.AddTransient<UpstreamManagementView>(sp => new UpstreamManagementView(sp.GetRequiredService<UpStreamManagementViewModel>()));
