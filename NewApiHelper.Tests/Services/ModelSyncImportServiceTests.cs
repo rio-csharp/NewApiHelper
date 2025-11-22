@@ -1,5 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using NewApiHelper.Data;
 using NewApiHelper.Models;
 using NewApiHelper.Services;
+using System.Net.Http;
 using System.Text.Json;
 
 namespace NewApiHelper.Tests.Services;
@@ -264,5 +267,63 @@ public class ModelSyncImportServiceTests
         var upstream = new Upstream { Id = 3, Name = "vc", Url = "http://example.com", UpstreamRatio = 1.0 };
         var upstreamGroup = new UpstreamGroup { Id = 18, GroupName = "限时特价", GroupRatio = 0.6 };
         TestModels(upstream, upstreamGroup, "../../../Samples/VC-Price.json", "../../../Samples/VC-Actual-限时特价-Price.json", (s, j, u, g) => s.GetModelsFromVC(j, u, g));
+    }
+
+    [Fact]
+    public async Task ImportAsync_ValidData_ImportsModels()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        var context = new AppDbContext(options);
+        var httpClient = new HttpClient(new MockHttpMessageHandler());
+
+        var service = new ModelSyncImportService(context, httpClient);
+
+        var upstream = new Upstream
+        {
+            Id = 1,
+            Name = "ez",
+            Url = "http://test.com",
+            UpstreamRatio = 1.0
+        };
+
+        var upstreamGroups = new List<UpstreamGroup>
+        {
+            new UpstreamGroup { Id = 1, GroupName = "default", GroupRatio = 1.0 }
+        };
+
+        // Act
+        await service.ImportAsync(upstream, upstreamGroups);
+
+        // Assert
+        var models = await context.ModelSyncs.ToListAsync();
+        Assert.NotEmpty(models);
+    }
+}
+
+// Mock HttpMessageHandler for testing
+public class MockHttpMessageHandler : HttpMessageHandler
+{
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        var jsonResponse = @"{
+            ""data"": [
+                {
+                    ""model_name"": ""test-model"",
+                    ""quota_type"": 0,
+                    ""model_ratio"": 1.0,
+                    ""model_price"": 1.0,
+                    ""completion_ratio"": 1.0
+                }
+            ]
+        }";
+        var response = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+        {
+            Content = new StringContent(jsonResponse)
+        };
+        return response;
     }
 }

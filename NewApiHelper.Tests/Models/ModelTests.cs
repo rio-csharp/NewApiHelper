@@ -166,3 +166,32 @@ public class TestChannelResponseTests
         response.Time.Should().Be(0.0);
     }
 }
+
+public class ChannelInfoTests
+{
+    [Fact]
+    public void ChannelInfo_ShouldInitializeWithDefaultValues()
+    {
+        // Act
+        var channelInfo = new ChannelInfo();
+
+        // Assert
+        channelInfo.IsMultiKey.Should().BeFalse();
+        channelInfo.MultiKeyMode.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ChannelInfo_ShouldAllowPropertyAssignment()
+    {
+        // Arrange
+        var channelInfo = new ChannelInfo();
+
+        // Act
+        channelInfo.IsMultiKey = true;
+        channelInfo.MultiKeyMode = "round-robin";
+
+        // Assert
+        channelInfo.IsMultiKey.Should().BeTrue();
+        channelInfo.MultiKeyMode.Should().Be("round-robin");
+    }
+}
