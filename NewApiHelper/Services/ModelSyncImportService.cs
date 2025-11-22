@@ -261,10 +261,20 @@ public class ModelSyncImportService : IModelSyncImportService
     {
         foreach (var model in models)
         {
-            var existing = await _context.ModelSyncs.FindAsync(model.Id);
+            var existing = await _context.ModelSyncs.FirstOrDefaultAsync(m => m.Name == model.Name);
             if (existing != null)
             {
-                _context.Entry(existing).CurrentValues.SetValues(model);
+                // Update existing model without changing Id
+                existing.Name = model.Name;
+                existing.Ratio = model.Ratio;
+                existing.Price = model.Price;
+                existing.CompletionRatio = model.CompletionRatio;
+                existing.QuotaType = model.QuotaType;
+                existing.UpstreamId = model.UpstreamId;
+                existing.UpstreamGroupId = model.UpstreamGroupId;
+                existing.Upstream = model.Upstream;
+                existing.UpstreamGroup = model.UpstreamGroup;
+                // Do not update CreatedAt or Id
             }
             else
             {

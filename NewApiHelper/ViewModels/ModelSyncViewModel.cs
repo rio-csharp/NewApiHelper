@@ -24,6 +24,9 @@ public class ModelSyncViewModel : ObservableObject
         _importService = importService;
         RefreshCommand = new RelayCommand(async () => await RefreshAsync());
         ImportCommand = new RelayCommand(async () => await ImportAsync());
+
+        // 自动加载数据
+        Task.Run(async () => await RefreshAsync());
     }
 
     private async Task RefreshAsync()
@@ -41,7 +44,15 @@ public class ModelSyncViewModel : ObservableObject
 
     private async Task ImportAsync()
     {
-        // TODO: Implement import logic with file selection
-        // For now, this is a placeholder
+
+        var upstreams = await _context.UpStreams.ToListAsync();
+        foreach (var upstream in upstreams)
+        {
+            var upstreamGroups = await _context.UpstreamGroups
+                .Where(ug => ug.UpstreamId == upstream.Id)
+                .ToListAsync();
+            await _importService.ImportAsync(upstream, upstreamGroups);
+        }
+        await RefreshAsync();
     }
 }
