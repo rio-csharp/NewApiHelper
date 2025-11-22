@@ -31,6 +31,20 @@ public partial class UpstreamGroupItemViewModel : ObservableObject
         }
     }
 
+    public string GroupName
+    {
+        get => _group.GroupName;
+        set
+        {
+            if (_group.GroupName != value)
+            {
+                _group.GroupName = value ?? string.Empty;
+                OnPropertyChanged(nameof(GroupName));
+                IsDirty = true;
+            }
+        }
+    }
+
     public int UpstreamId
     {
         get => _group.UpstreamId;

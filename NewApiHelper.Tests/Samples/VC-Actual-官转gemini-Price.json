@@ -26,6 +26,5 @@
   "gemini-2.5-pro-thinking-*": 30.0,
   "gemini-flash-latest": 7.515,
   "gemini-flash-lite-latest": 1.2,
-  "gemini-pro-latest": 30.0,
-  "gemini-pro-latest-thinking-*": 30.0
+  "gemini-pro-latest": 30.0
 }

@@ -77,5 +77,8 @@
   "gemini-2.5-flash-image": 9,
   "gemini-3-pro-image-preview": 3.6,
   "gemini-3-pro-preview": 3.6,
+  "gemini-3-pro-preview-nothinking": 3.6,
+  "gemini-3-pro-preview-thinking": 3.6,
+  "gemini-3-pro-preview-thinking-*": 3.6,
   "text-embedding-004": 0
 }

@@ -11,6 +11,9 @@ public class UpstreamGroup
     public string Name { get; set; } = string.Empty;
 
     [Required]
+    public string GroupName { get; set; } = string.Empty;
+
+    [Required]
     public int UpstreamId { get; set; }
 
     public double GroupRatio { get; set; } = 1.0;

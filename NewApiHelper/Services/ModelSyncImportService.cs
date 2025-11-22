@@ -111,8 +111,8 @@ public class ModelSyncImportService : IModelSyncImportService
             var priceInfoNode = modelNode["price_info"];
             if (priceInfoNode is null) continue;
             var priceInfo = priceInfoNode.AsObject();
-            if (!priceInfo.ContainsKey(upstreamGroup.Name)) continue;
-            var groupPriceNode = priceInfo[upstreamGroup.Name];
+            if (!priceInfo.ContainsKey(upstreamGroup.GroupName)) continue;
+            var groupPriceNode = priceInfo[upstreamGroup.GroupName];
             if (groupPriceNode is null) continue;
             var defaultPriceNode = groupPriceNode["default"];
             if (defaultPriceNode is null) continue;
@@ -201,7 +201,7 @@ public class ModelSyncImportService : IModelSyncImportService
         var modelCompletionRatioNode = dataNode["model_completion_ratio"];
         var modelGroupNode = dataNode["model_group"];
         if (modelGroupNode is null) return Enumerable.Empty<ModelSync>();
-        var groupNode = modelGroupNode[upstreamGroup.Name];
+        var groupNode = modelGroupNode[upstreamGroup.GroupName];
         if (groupNode is null) return Enumerable.Empty<ModelSync>();
         var groupRatioNode = groupNode["GroupRatio"];
         if (groupRatioNode is null) return Enumerable.Empty<ModelSync>();
