@@ -44,12 +44,12 @@ public partial class UpstreamItemViewModel : ObservableObject
 
     public double Multiplier
     {
-        get => _channel.Multiplier;
+        get => _channel.UpstreamRatio;
         set
         {
-            if (_channel.Multiplier != value)
+            if (_channel.UpstreamRatio != value)
             {
-                _channel.Multiplier = value;
+                _channel.UpstreamRatio = value;
                 OnPropertyChanged(nameof(Multiplier));
                 IsDirty = true;
             }

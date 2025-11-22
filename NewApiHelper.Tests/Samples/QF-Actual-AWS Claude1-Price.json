@@ -1,0 +1,15 @@
+{
+  "claude-3-5-haiku-20241022": 8,
+  "claude-3-5-sonnet-20241022": 30,
+  "claude-3-7-sonnet-20250219": 30,
+  "claude-3-7-sonnet-20250219-thinking": 30,
+  "claude-opus-4-1-20250805": 150,
+  "claude-opus-4-1-20250805-thinking": 150,
+  "claude-opus-4-20250514": 120,
+  "claude-sonnet-4-20250514": 30,
+  "claude-sonnet-4-20250514-thinking": 30,
+  "claude-sonnet-4-5-20250929": 30,
+  "claude-sonnet-4-5-20250929-thinking": 30,
+  "claude-haiku-4-5-20251001": 10,
+  "claude-opus-4-20250514-thinking": 150
+}

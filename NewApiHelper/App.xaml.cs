@@ -8,6 +8,7 @@ using NewApiHelper.ViewModels;
 using NewApiHelper.Views;
 using Serilog;
 using System.IO;
+using System.Net.Http;
 using System.Windows;
 
 namespace NewApiHelper;
@@ -83,14 +84,18 @@ public partial class App : Application
         }
         services.AddChannelHttpClient(apiBaseUrl!, apiToken!, apiUserId!);
         services.AddDatabase(dbConn!);
+        services.AddSingleton<HttpClient>(new HttpClient());
         services.AddTransient<ChannelManagementViewModel>();
         services.AddTransient<UpStreamManagementViewModel>();
         services.AddTransient<UpstreamGroupViewModel>();
+        services.AddTransient<ModelSyncViewModel>();
         services.AddTransient<IMessageService, MessageService>();
+        services.AddTransient<IModelSyncImportService, ModelSyncImportService>();
         // 优化View注入，自动注入ViewModel
         services.AddTransient<ChannelManagementView>(sp => new ChannelManagementView(sp.GetRequiredService<ChannelManagementViewModel>()));
         services.AddTransient<UpstreamManagementView>(sp => new UpstreamManagementView(sp.GetRequiredService<UpStreamManagementViewModel>()));
         services.AddTransient<UpstreamGroupView>(sp => new UpstreamGroupView(sp.GetRequiredService<UpstreamGroupViewModel>()));
+        services.AddTransient<ModelSyncView>(sp => new ModelSyncView(sp.GetRequiredService<ModelSyncViewModel>()));
         services.AddTransient<DataDisplayView>();
         services.AddTransient<SyncLogView>();
         services.AddTransient<MainWindowViewModel>();

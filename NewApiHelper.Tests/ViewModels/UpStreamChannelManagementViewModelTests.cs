@@ -54,8 +54,8 @@ public class UpStreamChannelManagementViewModelTests
         // Arrange
         var channels = new List<Upstream>
         {
-            new Upstream { Id = 1, Name = "Channel 1", Url = "https://api1.com", Multiplier = 1.0, CreatedAt = DateTime.Now },
-            new Upstream { Id = 2, Name = "Channel 2", Url = "https://api2.com", Multiplier = 2.0, CreatedAt = DateTime.Now }
+            new Upstream { Id = 1, Name = "Channel 1", Url = "https://api1.com", UpstreamRatio = 1.0, CreatedAt = DateTime.Now },
+            new Upstream { Id = 2, Name = "Channel 2", Url = "https://api2.com", UpstreamRatio = 2.0, CreatedAt = DateTime.Now }
         };
         _mockService.Setup(s => s.GetAllAsync()).ReturnsAsync(channels);
 
@@ -78,7 +78,7 @@ public class UpStreamChannelManagementViewModelTests
         // Arrange
         var channels = new List<Upstream>
         {
-            new Upstream { Id = 1, Name = "Channel 1", Url = "https://api1.com", Multiplier = 1.0, CreatedAt = DateTime.Now }
+            new Upstream { Id = 1, Name = "Channel 1", Url = "https://api1.com", UpstreamRatio = 1.0, CreatedAt = DateTime.Now }
         };
 
         // Setup mock to return after a delay to ensure we can capture the loading state
@@ -104,7 +104,7 @@ public class UpStreamChannelManagementViewModelTests
     public void SelectedChannel_SetToValidChannel_SetsIsChannelSelectedToTrue()
     {
         // Arrange
-        var channel = new Upstream { Id = 1, Name = "Test", Url = "https://test.com", Multiplier = 1.0, CreatedAt = DateTime.Now };
+        var channel = new Upstream { Id = 1, Name = "Test", Url = "https://test.com", UpstreamRatio = 1.0, CreatedAt = DateTime.Now };
         var channelVm = new UpstreamItemViewModel(channel);
         _viewModel.Channels.Add(channelVm);
 
@@ -119,7 +119,7 @@ public class UpStreamChannelManagementViewModelTests
     public void SelectedChannel_SetToNull_SetsIsChannelSelectedToFalse()
     {
         // Arrange
-        var channel = new Upstream { Id = 1, Name = "Test", Url = "https://test.com", Multiplier = 1.0, CreatedAt = DateTime.Now };
+        var channel = new Upstream { Id = 1, Name = "Test", Url = "https://test.com", UpstreamRatio = 1.0, CreatedAt = DateTime.Now };
         var channelVm = new UpstreamItemViewModel(channel);
         _viewModel.Channels.Add(channelVm);
         _viewModel.SelectedChannel = channelVm; // First set to a channel
@@ -155,7 +155,7 @@ public class UpStreamChannelManagementViewModelTests
     public async Task DeleteChannelAsync_ExistingChannel_RemovesFromCollection()
     {
         // Arrange
-        var channel = new Upstream { Id = 1, Name = "Test", Url = "https://test.com", Multiplier = 1.0, CreatedAt = DateTime.Now };
+        var channel = new Upstream { Id = 1, Name = "Test", Url = "https://test.com", UpstreamRatio = 1.0, CreatedAt = DateTime.Now };
         var channelVm = new UpstreamItemViewModel(channel);
         _viewModel.Channels.Add(channelVm);
         _viewModel.SelectedChannel = channelVm;
@@ -178,7 +178,7 @@ public class UpStreamChannelManagementViewModelTests
     public async Task SaveChannelAsync_ValidChannel_SavesSuccessfully()
     {
         // Arrange
-        var channel = new Upstream { Id = 1, Name = "Original", Url = "https://original.com", Multiplier = 1.0, CreatedAt = DateTime.Now };
+        var channel = new Upstream { Id = 1, Name = "Original", Url = "https://original.com", UpstreamRatio = 1.0, CreatedAt = DateTime.Now };
         var channelVm = new UpstreamItemViewModel(channel);
         _viewModel.Channels.Add(channelVm);
         _viewModel.SelectedChannel = channelVm;
@@ -187,7 +187,7 @@ public class UpStreamChannelManagementViewModelTests
         channelVm.Name = "Modified";
         channelVm.IsEditing = true;
 
-        var updatedChannel = new Upstream { Id = 1, Name = "Modified", Url = "https://original.com", Multiplier = 1.0, CreatedAt = DateTime.Now };
+        var updatedChannel = new Upstream { Id = 1, Name = "Modified", Url = "https://original.com", UpstreamRatio = 1.0, CreatedAt = DateTime.Now };
         _mockService.Setup(s => s.UpdateAsync(It.IsAny<Upstream>())).ReturnsAsync(updatedChannel);
 
         // Act
@@ -203,7 +203,7 @@ public class UpStreamChannelManagementViewModelTests
     public void CancelEditCommand_ResetsChannelState()
     {
         // Arrange
-        var originalChannel = new Upstream { Id = 1, Name = "Original", Url = "https://original.com", Multiplier = 1.0, CreatedAt = DateTime.Now };
+        var originalChannel = new Upstream { Id = 1, Name = "Original", Url = "https://original.com", UpstreamRatio = 1.0, CreatedAt = DateTime.Now };
         var channelVm = new UpstreamItemViewModel(originalChannel);
         _viewModel.Channels.Add(channelVm);
         _viewModel.SelectedChannel = channelVm;
@@ -224,7 +224,7 @@ public class UpStreamChannelManagementViewModelTests
     public void Channels_CollectionChanged_UpdatesHasChannelsAndShowAddButton()
     {
         // Act - Add first channel
-        var channel1 = new UpstreamItemViewModel(new Upstream { Id = 1, Name = "Channel 1", Url = "https://api1.com", Multiplier = 1.0, CreatedAt = DateTime.Now });
+        var channel1 = new UpstreamItemViewModel(new Upstream { Id = 1, Name = "Channel 1", Url = "https://api1.com", UpstreamRatio = 1.0, CreatedAt = DateTime.Now });
         _viewModel.Channels.Add(channel1);
 
         // Assert

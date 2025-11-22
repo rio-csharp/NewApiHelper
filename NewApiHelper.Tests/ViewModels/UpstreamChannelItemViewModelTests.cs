@@ -15,7 +15,7 @@ public class UpstreamChannelItemViewModelTests
             Id = 1,
             Name = "Test Channel",
             Url = "https://api.test.com",
-            Multiplier = 1.5,
+            UpstreamRatio = 1.5,
             CreatedAt = new DateTime(2025, 11, 21)
         };
 
@@ -119,7 +119,7 @@ public class UpstreamChannelItemViewModelTests
     public void Multiplier_SetNewValue_UpdatesChannelAndSetsDirty()
     {
         // Arrange
-        var channel = new Upstream { Multiplier = 1.0 };
+        var channel = new Upstream { UpstreamRatio = 1.0 };
         var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
@@ -127,7 +127,7 @@ public class UpstreamChannelItemViewModelTests
 
         // Assert
         viewModel.Multiplier.Should().Be(2.5);
-        channel.Multiplier.Should().Be(2.5);
+        channel.UpstreamRatio.Should().Be(2.5);
         viewModel.IsDirty.Should().BeTrue();
     }
 
@@ -135,7 +135,7 @@ public class UpstreamChannelItemViewModelTests
     public void Multiplier_SetSameValue_DoesNotSetDirty()
     {
         // Arrange
-        var channel = new Upstream { Multiplier = 1.5 };
+        var channel = new Upstream { UpstreamRatio = 1.5 };
         var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
@@ -181,7 +181,7 @@ public class UpstreamChannelItemViewModelTests
         {
             Name = "Original",
             Url = "https://original.com",
-            Multiplier = 1.0
+            UpstreamRatio = 1.0
         };
         var viewModel = new UpstreamItemViewModel(channel);
 
@@ -194,6 +194,6 @@ public class UpstreamChannelItemViewModelTests
         viewModel.IsDirty.Should().BeTrue();
         channel.Name.Should().Be("New Name");
         channel.Url.Should().Be("https://new.com");
-        channel.Multiplier.Should().Be(2.0);
+        channel.UpstreamRatio.Should().Be(2.0);
     }
 }

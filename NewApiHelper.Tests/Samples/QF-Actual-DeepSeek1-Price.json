@@ -1,0 +1,21 @@
+{
+  "deepseek-r1": 8,
+  "deepseek-reasoner": 8,
+  "deepseek-v3.1": 8,
+  "deepseek-chat": 8,
+  "deepseek-r1-0528": 8,
+  "deepseek-r1-250528": 8,
+  "deepseek-r1-distill-llama-70b": 7.2,
+  "deepseek-r1-distill-llama-8b": 30,
+  "deepseek-r1:1.5b": 30,
+  "deepseek-r1:7b": 1.4,
+  "deepseek-r1:8b": 30,
+  "deepseek-v2.5": 30,
+  "deepseek-v3": 4,
+  "deepseek-v3-0324": 4,
+  "deepseek-v3-1-250821": 6,
+  "deepseek-v3-2-exp": 1.5,
+  "deepseek-v3-250324": 4,
+  "deepseek-v3.2-exp": 4,
+  "deepseek-vl2": 30
+}

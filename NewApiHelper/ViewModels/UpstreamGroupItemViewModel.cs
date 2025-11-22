@@ -47,12 +47,12 @@ public partial class UpstreamGroupItemViewModel : ObservableObject
 
     public double GroupMultiplier
     {
-        get => _group.GroupMultiplier;
+        get => _group.GroupRatio;
         set
         {
-            if (_group.GroupMultiplier != value)
+            if (_group.GroupRatio != value)
             {
-                _group.GroupMultiplier = value;
+                _group.GroupRatio = value;
                 OnPropertyChanged(nameof(GroupMultiplier));
                 IsDirty = true;
             }

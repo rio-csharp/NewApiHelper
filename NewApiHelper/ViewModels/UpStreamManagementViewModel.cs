@@ -142,7 +142,7 @@ public partial class UpStreamManagementViewModel : ObservableObject
             Id = 0,
             Name = "",
             Url = "",
-            Multiplier = 1.0
+            UpstreamRatio = 1.0
         };
 
         var vm = new UpstreamItemViewModel(newChannel)
@@ -165,7 +165,7 @@ public partial class UpStreamManagementViewModel : ObservableObject
             Id = 0,
             Name = src.Name + "_Copy",
             Url = src.Url,
-            Multiplier = src.Multiplier
+            UpstreamRatio = src.UpstreamRatio
         };
 
         var vm = new UpstreamItemViewModel(newChannel)
@@ -250,7 +250,7 @@ public partial class UpStreamManagementViewModel : ObservableObject
             {
                 SelectedChannel.Name = channel.Name;
                 SelectedChannel.Url = channel.Url;
-                SelectedChannel.Multiplier = channel.Multiplier;
+                SelectedChannel.Multiplier = channel.UpstreamRatio;
             }
             SelectedChannel.IsEditing = false;
             SelectedChannel.IsDirty = false;

@@ -30,10 +30,11 @@ public class MainWindowViewModelTests
     {
         // Assert
         _viewModel.MenuItems.Should().NotBeNull();
-        _viewModel.MenuItems.Should().HaveCount(5);
+        _viewModel.MenuItems.Should().HaveCount(6);
         _viewModel.MenuItems.Should().Contain(m => m.DisplayName == "渠道管理" && m.PageKey == "ChannelManagement");
         _viewModel.MenuItems.Should().Contain(m => m.DisplayName == "上游管理" && m.PageKey == "UpstreamManagement");
         _viewModel.MenuItems.Should().Contain(m => m.DisplayName == "上游分组" && m.PageKey == "UpstreamGroup");
+        _viewModel.MenuItems.Should().Contain(m => m.DisplayName == "模型同步" && m.PageKey == "ModelSync");
         _viewModel.MenuItems.Should().Contain(m => m.DisplayName == "数据展示" && m.PageKey == "DataDisplay");
         _viewModel.MenuItems.Should().Contain(m => m.DisplayName == "同步日志" && m.PageKey == "SyncLog");
     }

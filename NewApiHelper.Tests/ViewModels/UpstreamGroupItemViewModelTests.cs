@@ -1,7 +1,6 @@
 using NewApiHelper.Models;
 using NewApiHelper.ViewModels;
 using System.Collections.ObjectModel;
-using Xunit;
 
 namespace NewApiHelper.Tests.ViewModels;
 
@@ -16,7 +15,7 @@ public class UpstreamGroupItemViewModelTests
             new Upstream { Id = 1, Name = "Upstream1" },
             new Upstream { Id = 2, Name = "Upstream2" }
         };
-        var group = new UpstreamGroup { Id = 1, Name = "Group1", UpstreamId = 1, GroupMultiplier = 1.5 };
+        var group = new UpstreamGroup { Id = 1, Name = "Group1", UpstreamId = 1, GroupRatio = 1.5 };
 
         // Act
         var vm = new UpstreamGroupItemViewModel(group, upstreams);
@@ -74,7 +73,7 @@ public class UpstreamGroupItemViewModelTests
         {
             new Upstream { Id = 1, Name = "Upstream1" }
         };
-        var group = new UpstreamGroup { Id = 1, Name = "Group1", UpstreamId = 1, GroupMultiplier = 1.5, Key = "key1" };
+        var group = new UpstreamGroup { Id = 1, Name = "Group1", UpstreamId = 1, GroupRatio = 1.5, Key = "key1" };
         var vm = new UpstreamGroupItemViewModel(group, upstreams);
 
         // Act
@@ -84,7 +83,7 @@ public class UpstreamGroupItemViewModelTests
         Assert.Equal(1, model.Id);
         Assert.Equal("Group1", model.Name);
         Assert.Equal(1, model.UpstreamId);
-        Assert.Equal(1.5, model.GroupMultiplier);
+        Assert.Equal(1.5, model.GroupRatio);
         Assert.Equal("key1", model.Key);
     }
 }

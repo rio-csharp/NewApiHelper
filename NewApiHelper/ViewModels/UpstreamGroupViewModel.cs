@@ -152,7 +152,7 @@ public partial class UpstreamGroupViewModel : ObservableObject
             Id = 0,
             Name = "",
             UpstreamId = 0,
-            GroupMultiplier = 1.0,
+            GroupRatio = 1.0,
             Key = ""
         };
 
@@ -176,7 +176,7 @@ public partial class UpstreamGroupViewModel : ObservableObject
             Id = 0,
             Name = src.Name + "_Copy",
             UpstreamId = src.UpstreamId,
-            GroupMultiplier = src.GroupMultiplier,
+            GroupRatio = src.GroupRatio,
             Key = src.Key
         };
 
@@ -262,7 +262,7 @@ public partial class UpstreamGroupViewModel : ObservableObject
             {
                 SelectedGroup.Name = group.Name;
                 SelectedGroup.UpstreamId = group.UpstreamId;
-                SelectedGroup.GroupMultiplier = group.GroupMultiplier;
+                SelectedGroup.GroupMultiplier = group.GroupRatio;
                 SelectedGroup.Key = group.Key;
                 // Re-select the upstream
                 SelectedGroup.SelectedUpstream = AvailableUpstreams.FirstOrDefault(u => u.Id == group.UpstreamId);

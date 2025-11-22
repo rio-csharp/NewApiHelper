@@ -42,7 +42,7 @@ public class UpStreamChannelServiceTests : IDisposable
         {
             Name = "Test Channel",
             Url = "https://api.test.com",
-            Multiplier = 1.5,
+            UpstreamRatio = 1.5,
             CreatedAt = DateTime.Now
         };
 
@@ -54,7 +54,7 @@ public class UpStreamChannelServiceTests : IDisposable
         result.Id.Should().BeGreaterThan(0);
         result.Name.Should().Be("Test Channel");
         result.Url.Should().Be("https://api.test.com");
-        result.Multiplier.Should().Be(1.5);
+        result.UpstreamRatio.Should().Be(1.5);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class UpStreamChannelServiceTests : IDisposable
         {
             Name = "Test Channel",
             Url = "https://api.test.com",
-            Multiplier = 1.0,
+            UpstreamRatio = 1.0,
             CreatedAt = DateTime.Now
         };
         var addedChannel = await _service.AddAsync(channel);
@@ -97,14 +97,14 @@ public class UpStreamChannelServiceTests : IDisposable
         {
             Name = "Original Name",
             Url = "https://original.com",
-            Multiplier = 1.0,
+            UpstreamRatio = 1.0,
             CreatedAt = DateTime.Now
         };
         var addedChannel = await _service.AddAsync(channel);
 
         addedChannel.Name = "Updated Name";
         addedChannel.Url = "https://updated.com";
-        addedChannel.Multiplier = 2.0;
+        addedChannel.UpstreamRatio = 2.0;
 
         // Act
         var result = await _service.UpdateAsync(addedChannel);
@@ -113,7 +113,7 @@ public class UpStreamChannelServiceTests : IDisposable
         result.Should().NotBeNull();
         result.Name.Should().Be("Updated Name");
         result.Url.Should().Be("https://updated.com");
-        result.Multiplier.Should().Be(2.0);
+        result.UpstreamRatio.Should().Be(2.0);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class UpStreamChannelServiceTests : IDisposable
         {
             Name = "Test Channel",
             Url = "https://api.test.com",
-            Multiplier = 1.0,
+            UpstreamRatio = 1.0,
             CreatedAt = DateTime.Now
         };
         var addedChannel = await _service.AddAsync(channel);
@@ -153,14 +153,14 @@ public class UpStreamChannelServiceTests : IDisposable
         {
             Name = "Channel 1",
             Url = "https://api1.com",
-            Multiplier = 1.0,
+            UpstreamRatio = 1.0,
             CreatedAt = DateTime.Now
         };
         var channel2 = new Upstream
         {
             Name = "Channel 2",
             Url = "https://api2.com",
-            Multiplier = 2.0,
+            UpstreamRatio = 2.0,
             CreatedAt = DateTime.Now
         };
 

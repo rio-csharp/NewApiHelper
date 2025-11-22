@@ -13,7 +13,7 @@ public class UpstreamGroup
     [Required]
     public int UpstreamId { get; set; }
 
-    public double GroupMultiplier { get; set; } = 1.0;
+    public double GroupRatio { get; set; } = 1.0;
 
     [Required]
     public string Key { get; set; } = string.Empty;

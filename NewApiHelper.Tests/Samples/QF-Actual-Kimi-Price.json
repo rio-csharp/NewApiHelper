@@ -1,0 +1,22 @@
+{
+  "gpt-oss-120b": 0.05,
+  "kimi-k2-0711-preview": 8,
+  "deepseek-v3.1": 8,
+  "qwen3-235b": 0.05,
+  "[N]kimi-k2-instruct": 8,
+  "[N]kimi-k2-instruct-0905": 8,
+  "[N]Qwen3-Next-80B-Instruct": 30,
+  "kimi-k2-0711-preview-search": 8,
+  "kimi-k2-0711-search": 8,
+  "kimi-k2-0905-preview-search": 8,
+  "kimi-k2-250905": 8,
+  "kimi-k2-instruct-0905": 8,
+  "kimi-k2-thinking": 8,
+  "llama-4": 0.05,
+  "llama-4-maverick": 0.05,
+  "qwen3": 0.05,
+  "qwen3-next-80b-a3b-instruct": 2,
+  "质心微头条": 2,
+  "质心网络wq1131999": 8,
+  "鲁驰": 8
+}

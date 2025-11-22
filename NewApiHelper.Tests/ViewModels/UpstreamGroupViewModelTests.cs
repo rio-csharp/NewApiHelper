@@ -3,8 +3,6 @@ using NewApiHelper.Models;
 using NewApiHelper.Services;
 using NewApiHelper.ViewModels;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Xunit;
 
 namespace NewApiHelper.Tests.ViewModels;
 
@@ -68,7 +66,7 @@ public class UpstreamGroupViewModelTests
     public async Task SaveGroupCommand_SavesNewGroup()
     {
         // Arrange
-        var group = new UpstreamGroup { Id = 0, Name = "NewGroup", UpstreamId = 1, GroupMultiplier = 1.0, Key = "key" };
+        var group = new UpstreamGroup { Id = 0, Name = "NewGroup", UpstreamId = 1, GroupRatio = 1.0, Key = "key" };
         var vm = new UpstreamGroupItemViewModel(group, new ObservableCollection<Upstream> { new Upstream { Id = 1, Name = "Upstream1" } })
         {
             IsNew = true,

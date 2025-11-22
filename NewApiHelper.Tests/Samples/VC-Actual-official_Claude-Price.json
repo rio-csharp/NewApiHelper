@@ -1,0 +1,21 @@
+{
+  "claude-haiku-4-5-20251001": 40,
+  "claude-haiku-4-5-20251001-thinking": 40,
+  "claude-opus-4-1-20250805": 600,
+  "claude-opus-4-1-20250805-thinking": 600,
+  "claude-opus-4-20250514": 600,
+  "claude-opus-4-20250514-thinking": 600,
+  "claude-sonnet-4-20250514": 120,
+  "claude-sonnet-4-20250514-thinking": 120,
+  "claude-sonnet-4-5-20250929": 120,
+  "claude-sonnet-4-5-20250929-thinking": 120,
+  "claude-3-5-haiku-20241022": 32,
+  "claude-3-5-haiku-latest": 32,
+  "claude-3-5-sonnet-20241022": 120,
+  "claude-3-7-sonnet-20250219": 120,
+  "claude-3-7-sonnet-20250219-thinking": 120,
+  "claude-3-7-sonnet-latest": 120,
+  "claude-3-haiku-20240307": 10,
+  "claude-3-opus-20240229": 600,
+  "claude-3-sonnet-20240229": 120
+}
