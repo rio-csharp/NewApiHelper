@@ -4,10 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:NewApiHelper.Converters"
+             xmlns:models="clr-namespace:NewApiHelper.Models"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <converters:QuotaTypeToStringConverter x:Key="QuotaTypeConverter" />
+        <converters:TestResultStatusToStringConverter x:Key="StatusConverter" />
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -19,6 +21,8 @@
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
             <Button Content="刷新" Command="{Binding RefreshCommand}" Margin="0,0,10,0" Background="#4CAF50" Foreground="White" FontWeight="Bold" Padding="10,5" BorderThickness="0" />
             <Button Content="导入" Command="{Binding ImportCommand}" Background="#2196F3" Foreground="White" FontWeight="Bold" Padding="10,5" BorderThickness="0" Margin="0,0,10,0" />
+            <Button Content="测试" Command="{Binding TestCommand}" Background="#FF5722" Foreground="White" FontWeight="Bold" Padding="10,5" BorderThickness="0" Margin="0,0,10,0" />
+            <Button Content="测试失败" Command="{Binding TestFailedCommand}" Background="#9C27B0" Foreground="White" FontWeight="Bold" Padding="10,5" BorderThickness="0" Margin="0,0,10,0" />
             <TextBlock Text="上游：" VerticalAlignment="Center" Margin="0,0,5,0" />
             <ComboBox ItemsSource="{Binding Upstreams}" SelectedItem="{Binding SelectedUpstream}" DisplayMemberPath="Name" Width="150" Margin="0,0,10,0" />
             <TextBlock Text="上游组：" VerticalAlignment="Center" Margin="0,0,5,0" />
@@ -29,7 +33,25 @@
         </StackPanel>
 
         <!-- 表格 -->
-        <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredItems}" AutoGenerateColumns="False" Margin="10" IsReadOnly="True">
+        <DataGrid Grid.Row="1" ItemsSource="{Binding FilteredItems}" SelectionMode="Extended" SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False" Margin="10" IsReadOnly="True">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding LatestTestResult}" Value="{x:Static models:TestResultStatus.Untested}">
+                            <Setter Property="Background" Value="White" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding LatestTestResult}" Value="{x:Static models:TestResultStatus.Skipped}">
+                            <Setter Property="Background" Value="Gainsboro" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding LatestTestResult}" Value="{x:Static models:TestResultStatus.Success}">
+                            <Setter Property="Background" Value="Honeydew" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding LatestTestResult}" Value="{x:Static models:TestResultStatus.Failed}">
+                            <Setter Property="Background" Value="MistyRose" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50" />
                 <DataGridTextColumn Header="名称" Binding="{Binding Name}" Width="150" />
@@ -43,6 +65,7 @@
                 <DataGridTextColumn Header="上游组倍率" Binding="{Binding UpstreamGroup.GroupRatio}" Width="100" />
                 <DataGridTextColumn Header="补全价格" Binding="{Binding CompletionPrice}" Width="100" />
                 <DataGridTextColumn Header="最终价格" Binding="{Binding FinalPrice}" Width="100" />
+                <DataGridTextColumn Header="最新测试结果" Binding="{Binding LatestTestResult, Converter={StaticResource StatusConverter}}" Width="120" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

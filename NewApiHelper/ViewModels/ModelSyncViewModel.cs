@@ -26,6 +26,10 @@ public class ModelSyncViewModel : ObservableObject
     public IRelayCommand RefreshCommand { get; }
     public IRelayCommand ImportCommand { get; }
     public IRelayCommand SearchCommand { get; }
+    public IRelayCommand TestCommand { get; }
+    public IRelayCommand TestFailedCommand { get; }
+
+    public ObservableCollection<ModelSync> SelectedModelSyncs { get; } = new();
 
     private Upstream? _selectedUpstream;
 
@@ -73,6 +77,8 @@ public class ModelSyncViewModel : ObservableObject
         RefreshCommand = new RelayCommand(async () => await RefreshAsync());
         ImportCommand = new RelayCommand(async () => await ImportAsync());
         SearchCommand = new RelayCommand(UpdateFilteredItems);
+        TestCommand = new RelayCommand(async () => await TestAsync());
+        TestFailedCommand = new RelayCommand(async () => await TestFailedAsync());
 
         // 自动加载数据
         Task.Run(async () => await RefreshAsync());
@@ -83,6 +89,7 @@ public class ModelSyncViewModel : ObservableObject
         var items = await _context.ModelSyncs
             .Include(m => m.Upstream)
             .Include(m => m.UpstreamGroup)
+            .Include(m => m.TestResults)
             .ToListAsync();
 
         var upstreams = await _context.UpStreams.ToListAsync();
@@ -173,6 +180,60 @@ public class ModelSyncViewModel : ObservableObject
         await Task.WhenAll(tasks);
 
         await RefreshAsync();
+    }
+
+    private async Task TestAsync()
+    {
+        if (!SelectedModelSyncs.Any()) return;
+
+        await Task.WhenAll(SelectedModelSyncs.Select(m => TestModelAsync(m, "Test")));
+        await RefreshAsync();
+    }
+
+    private async Task TestFailedAsync()
+    {
+        if (!SelectedModelSyncs.Any()) return;
+
+        await Task.WhenAll(SelectedModelSyncs.Select(m => TestModelAsync(m, "TestFailed")));
+        await RefreshAsync();
+    }
+
+    private async Task TestModelAsync(ModelSync model, string testType)
+    {
+        TestResultStatus status;
+        string? errorMessage = null;
+
+        if (testType == "TestFailed")
+        {
+            var latestTest = model.TestResults.OrderByDescending(t => t.TestTime).FirstOrDefault();
+            if (latestTest != null && latestTest.Status != TestResultStatus.Failed)
+            {
+                return;
+            }
+        }
+
+        if (model.FinalPrice > 100 || model.QuotaType != QuotaType.PayAsYouGo)
+        {
+            status = TestResultStatus.Skipped;
+            errorMessage = "跳过：不符合测试条件";
+        }
+        else
+        {
+            // 在这里写真正的测试代码
+            status = TestResultStatus.Failed;
+            errorMessage = "测试失败（模拟）";
+        }
+
+        var testResult = new ModelTestResult
+        {
+            ModelSyncId = model.Id,
+            Status = status,
+            TestType = testType,
+            ErrorMessage = errorMessage
+        };
+
+        _context.ModelTestResults.Add(testResult);
+        await _context.SaveChangesAsync();
     }
 
 }

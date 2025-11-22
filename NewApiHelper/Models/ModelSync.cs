@@ -56,6 +56,18 @@ public class ModelSync
 
     public UpstreamGroup? UpstreamGroup { get; set; }
 
+    public ICollection<ModelTestResult> TestResults { get; set; } = new List<ModelTestResult>();
+
+    [NotMapped]
+    public TestResultStatus LatestTestResult
+    {
+        get
+        {
+            var latest = TestResults.OrderByDescending(t => t.TestTime).FirstOrDefault();
+            return latest?.Status ?? TestResultStatus.Untested;
+        }
+    }
+
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 }
 
