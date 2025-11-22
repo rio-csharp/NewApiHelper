@@ -27,12 +27,40 @@ public class ModelSyncImportService : IModelSyncImportService
         }
     }
 
-    private async Task<string> GetPriceJson(Upstream upstream)
+    private async Task<string> GetPriceJson(Upstream upstream, int maxRetries = 3, int delayMs = 1000)
     {
         var url = upstream.Url + "/api/pricing";
-        var response = await _httpClient.GetStringAsync(url);
-        return response;
+        int attempt = 0;
+        Exception lastException = null;
+
+        while (attempt < maxRetries)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadAsStringAsync();
+
+                var error = await response.Content.ReadAsStringAsync();
+                lastException = new HttpRequestException($"请求失败。状态码: {response.StatusCode}, 响应内容: {error}");
+            }
+            catch (HttpRequestException ex)
+            {
+                lastException = ex;
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+            }
+            attempt++;
+            await Task.Delay(delayMs);
+        }
+
+        throw new Exception($"请求Upstream[{upstream.Url}]定价接口失败，重试{maxRetries}次后仍未成功。", lastException);
     }
+
+
 
     public IEnumerable<ModelSync> GetModels(string jsonContent, Upstream upstream, UpstreamGroup upstreamGroup)
     {
@@ -261,7 +289,7 @@ public class ModelSyncImportService : IModelSyncImportService
     {
         foreach (var model in models)
         {
-            var existing = await _context.ModelSyncs.FirstOrDefaultAsync(m => m.Name == model.Name);
+            var existing = await _context.ModelSyncs.FirstOrDefaultAsync(m => m.UpstreamId == model.UpstreamId && m.UpstreamGroupId == model.UpstreamGroupId && m.Name == model.Name);
             if (existing != null)
             {
                 // Update existing model without changing Id

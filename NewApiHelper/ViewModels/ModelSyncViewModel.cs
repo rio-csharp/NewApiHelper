@@ -21,7 +21,7 @@ public class ModelSyncViewModel : ObservableObject
     public ObservableCollection<UpstreamGroup> FilteredUpstreamGroups { get; } = new();
 
     private readonly Upstream allUpstream = new Upstream { Name = "All", Id = -1 };
-    private readonly UpstreamGroup allUpstreamGroup = new UpstreamGroup { GroupName = "All", Id = -1, UpstreamId = -1 };
+    private readonly UpstreamGroup allUpstreamGroup = new UpstreamGroup { Name = "All", Id = -1, UpstreamId = -1 };
 
     public IRelayCommand RefreshCommand { get; }
     public IRelayCommand ImportCommand { get; }
@@ -161,13 +161,18 @@ public class ModelSyncViewModel : ObservableObject
     private async Task ImportAsync()
     {
         var upstreams = await _context.UpStreams.ToListAsync();
-        foreach (var upstream in upstreams)
+
+        var tasks = upstreams.Select(async upstream =>
         {
             var upstreamGroups = await _context.UpstreamGroups
                 .Where(ug => ug.UpstreamId == upstream.Id)
                 .ToListAsync();
             await _importService.ImportAsync(upstream, upstreamGroups);
-        }
+        }).ToList();
+
+        await Task.WhenAll(tasks);
+
         await RefreshAsync();
     }
+
 }
