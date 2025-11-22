@@ -95,7 +95,7 @@
                                             <StackPanel Grid.Column="0" Margin="0,0,12,0">
                                                 <TextBlock Text="分组名称" Style="{StaticResource FormLabelStyle}" />
                                                 <TextBox Text="{Binding Name, Mode=TwoWay}" IsEnabled="{Binding IsEditing}" Style="{StaticResource FormTextBoxStyle}" />
-                                                <TextBlock Text="组名" Style="{StaticResource FormLabelStyle}" />
+                                                <TextBlock Text="上游组名" Style="{StaticResource FormLabelStyle}" />
                                                 <TextBox Text="{Binding GroupName, Mode=TwoWay}" IsEnabled="{Binding IsEditing}" Style="{StaticResource FormTextBoxStyle}" />
                                                 <TextBlock Text="选择上游" Style="{StaticResource FormLabelStyle}" />
                                                 <ComboBox ItemsSource="{Binding AvailableUpstreams}" SelectedItem="{Binding SelectedUpstream, Mode=TwoWay}" DisplayMemberPath="Name" IsEnabled="{Binding IsEditing}" Style="{StaticResource FormComboBoxStyle}" />

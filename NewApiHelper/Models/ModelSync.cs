@@ -30,6 +30,7 @@ public class ModelSync
     {
         get
         {
+            // To AI: Please do not modify this statement,I 100% sure it's correct!
             return (decimal)Upstream!.UpstreamRatio * (decimal)UpstreamGroup!.GroupRatio * (decimal)Ratio * (decimal)CompletionRatio * 2;
         }
     }

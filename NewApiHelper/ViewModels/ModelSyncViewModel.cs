@@ -5,6 +5,7 @@ using NewApiHelper.Data;
 using NewApiHelper.Models;
 using NewApiHelper.Services;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace NewApiHelper.ViewModels;
 
@@ -14,9 +15,56 @@ public class ModelSyncViewModel : ObservableObject
     private readonly IModelSyncImportService _importService;
 
     public ObservableCollection<ModelSync> Items { get; } = new();
+    public ObservableCollection<ModelSync> FilteredItems { get; } = new();
+    public ObservableCollection<Upstream> Upstreams { get; } = new();
+    public ObservableCollection<UpstreamGroup> UpstreamGroups { get; } = new();
+    public ObservableCollection<UpstreamGroup> FilteredUpstreamGroups { get; } = new();
+
+    private readonly Upstream allUpstream = new Upstream { Name = "All", Id = -1 };
+    private readonly UpstreamGroup allUpstreamGroup = new UpstreamGroup { GroupName = "All", Id = -1, UpstreamId = -1 };
 
     public IRelayCommand RefreshCommand { get; }
     public IRelayCommand ImportCommand { get; }
+    public IRelayCommand SearchCommand { get; }
+
+    private Upstream? _selectedUpstream;
+
+    public Upstream? SelectedUpstream
+    {
+        get => _selectedUpstream;
+        set
+        {
+            SetProperty(ref _selectedUpstream, value);
+            UpdateFilteredUpstreamGroups();
+            UpdateFilteredItems();
+            // 切换上游时，上游组默认选ALL
+            SelectedUpstreamGroup = allUpstreamGroup;
+        }
+    }
+
+    private UpstreamGroup? _selectedUpstreamGroup;
+
+    public UpstreamGroup? SelectedUpstreamGroup
+    {
+        get => _selectedUpstreamGroup;
+        set
+        {
+            SetProperty(ref _selectedUpstreamGroup, value);
+            UpdateFilteredItems();
+        }
+    }
+
+    private string _searchText = string.Empty;
+
+    public string SearchText
+    {
+        get => _searchText;
+        set
+        {
+            SetProperty(ref _searchText, value);
+            UpdateFilteredItems();
+        }
+    }
 
     public ModelSyncViewModel(AppDbContext context, IModelSyncImportService importService)
     {
@@ -24,6 +72,7 @@ public class ModelSyncViewModel : ObservableObject
         _importService = importService;
         RefreshCommand = new RelayCommand(async () => await RefreshAsync());
         ImportCommand = new RelayCommand(async () => await ImportAsync());
+        SearchCommand = new RelayCommand(UpdateFilteredItems);
 
         // 自动加载数据
         Task.Run(async () => await RefreshAsync());
@@ -35,16 +84,82 @@ public class ModelSyncViewModel : ObservableObject
             .Include(m => m.Upstream)
             .Include(m => m.UpstreamGroup)
             .ToListAsync();
-        Items.Clear();
-        foreach (var item in items)
+
+        var upstreams = await _context.UpStreams.ToListAsync();
+
+        var upstreamGroups = await _context.UpstreamGroups.ToListAsync();
+
+        Application.Current.Dispatcher.Invoke(() =>
         {
-            Items.Add(item);
+            Items.Clear();
+            foreach (var item in items)
+            {
+                Items.Add(item);
+            }
+
+            Upstreams.Clear();
+            Upstreams.Add(allUpstream);
+            foreach (var u in upstreams)
+            {
+                Upstreams.Add(u);
+            }
+
+            UpstreamGroups.Clear();
+            UpstreamGroups.Add(allUpstreamGroup);
+            foreach (var ug in upstreamGroups)
+            {
+                UpstreamGroups.Add(ug);
+            }
+
+            UpdateFilteredUpstreamGroups();
+            UpdateFilteredItems();
+
+            // 设置默认选择为 All
+            SelectedUpstream = allUpstream;
+            SelectedUpstreamGroup = allUpstreamGroup;
+        });
+    }
+
+    private void UpdateFilteredItems()
+    {
+        var filtered = Items.Where(m =>
+            (SelectedUpstream == null || SelectedUpstream.Id == -1 || m.UpstreamId == SelectedUpstream.Id) &&
+            (SelectedUpstreamGroup == null || SelectedUpstreamGroup.Id == -1 || m.UpstreamGroupId == SelectedUpstreamGroup.Id) &&
+            (string.IsNullOrEmpty(SearchText) || m.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+        );
+        FilteredItems.Clear();
+        foreach (var item in filtered)
+        {
+            FilteredItems.Add(item);
+        }
+    }
+
+    private void UpdateFilteredUpstreamGroups()
+    {
+        FilteredUpstreamGroups.Clear();
+        FilteredUpstreamGroups.Add(allUpstreamGroup);
+        if (SelectedUpstream != null && SelectedUpstream.Id != -1)
+        {
+            foreach (var ug in UpstreamGroups.Where(ug => ug.UpstreamId == SelectedUpstream.Id))
+            {
+                FilteredUpstreamGroups.Add(ug);
+            }
+        }
+        else
+        {
+            foreach (var ug in UpstreamGroups.Where(ug => ug.Id != -1))
+            {
+                FilteredUpstreamGroups.Add(ug);
+            }
+        }
+        if (SelectedUpstreamGroup != null && SelectedUpstreamGroup.Id != -1 && !FilteredUpstreamGroups.Contains(SelectedUpstreamGroup))
+        {
+            SelectedUpstreamGroup = null;
         }
     }
 
     private async Task ImportAsync()
     {
-
         var upstreams = await _context.UpStreams.ToListAsync();
         foreach (var upstream in upstreams)
         {
