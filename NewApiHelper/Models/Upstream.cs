@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace NewApiHelper.Models;
 
-public class UpStreamChannel
+public class Upstream
 {
     [Key]
     public int Id { get; set; }

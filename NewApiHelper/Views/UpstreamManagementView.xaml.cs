@@ -8,9 +8,9 @@ namespace NewApiHelper.Views;
 /// </summary>
 public partial class UpstreamManagementView : UserControl
 {
-    private readonly UpStreamChannelManagementViewModel _viewModel;
+    private readonly UpStreamManagementViewModel _viewModel;
 
-    public UpstreamManagementView(UpStreamChannelManagementViewModel viewModel)
+    public UpstreamManagementView(UpStreamManagementViewModel viewModel)
     {
         InitializeComponent();
         _viewModel = viewModel;

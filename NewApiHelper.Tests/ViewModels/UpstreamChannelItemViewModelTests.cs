@@ -10,7 +10,7 @@ public class UpstreamChannelItemViewModelTests
     public void Constructor_ValidChannel_SetsPropertiesCorrectly()
     {
         // Arrange
-        var channel = new UpStreamChannel
+        var channel = new Upstream
         {
             Id = 1,
             Name = "Test Channel",
@@ -20,7 +20,7 @@ public class UpstreamChannelItemViewModelTests
         };
 
         // Act
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Assert
         viewModel.Id.Should().Be(1);
@@ -37,8 +37,8 @@ public class UpstreamChannelItemViewModelTests
     public void Name_SetNewValue_UpdatesChannelAndSetsDirty()
     {
         // Arrange
-        var channel = new UpStreamChannel { Name = "Original Name" };
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var channel = new Upstream { Name = "Original Name" };
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
         viewModel.Name = "New Name";
@@ -53,8 +53,8 @@ public class UpstreamChannelItemViewModelTests
     public void Name_SetSameValue_DoesNotSetDirty()
     {
         // Arrange
-        var channel = new UpStreamChannel { Name = "Same Name" };
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var channel = new Upstream { Name = "Same Name" };
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
         viewModel.Name = "Same Name";
@@ -67,8 +67,8 @@ public class UpstreamChannelItemViewModelTests
     public void Name_SetNullValue_SetsEmptyString()
     {
         // Arrange
-        var channel = new UpStreamChannel { Name = "Original" };
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var channel = new Upstream { Name = "Original" };
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
@@ -85,8 +85,8 @@ public class UpstreamChannelItemViewModelTests
     public void Url_SetNewValue_UpdatesChannelAndSetsDirty()
     {
         // Arrange
-        var channel = new UpStreamChannel { Url = "https://original.com" };
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var channel = new Upstream { Url = "https://original.com" };
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
         viewModel.Url = "https://new.com";
@@ -101,8 +101,8 @@ public class UpstreamChannelItemViewModelTests
     public void Url_SetNullValue_SetsEmptyString()
     {
         // Arrange
-        var channel = new UpStreamChannel { Url = "https://original.com" };
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var channel = new Upstream { Url = "https://original.com" };
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
@@ -119,8 +119,8 @@ public class UpstreamChannelItemViewModelTests
     public void Multiplier_SetNewValue_UpdatesChannelAndSetsDirty()
     {
         // Arrange
-        var channel = new UpStreamChannel { Multiplier = 1.0 };
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var channel = new Upstream { Multiplier = 1.0 };
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
         viewModel.Multiplier = 2.5;
@@ -135,8 +135,8 @@ public class UpstreamChannelItemViewModelTests
     public void Multiplier_SetSameValue_DoesNotSetDirty()
     {
         // Arrange
-        var channel = new UpStreamChannel { Multiplier = 1.5 };
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var channel = new Upstream { Multiplier = 1.5 };
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
         viewModel.Multiplier = 1.5;
@@ -149,8 +149,8 @@ public class UpstreamChannelItemViewModelTests
     public void IsEditing_SetValue_UpdatesProperty()
     {
         // Arrange
-        var channel = new UpStreamChannel();
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var channel = new Upstream();
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
         viewModel.IsEditing = true;
@@ -163,8 +163,8 @@ public class UpstreamChannelItemViewModelTests
     public void IsNew_SetValue_UpdatesProperty()
     {
         // Arrange
-        var channel = new UpStreamChannel();
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var channel = new Upstream();
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
         viewModel.IsNew = true;
@@ -177,13 +177,13 @@ public class UpstreamChannelItemViewModelTests
     public void MultiplePropertyChanges_OnlySetsDirtyOnce()
     {
         // Arrange
-        var channel = new UpStreamChannel
+        var channel = new Upstream
         {
             Name = "Original",
             Url = "https://original.com",
             Multiplier = 1.0
         };
-        var viewModel = new UpStreamChannelItemViewModel(channel);
+        var viewModel = new UpstreamItemViewModel(channel);
 
         // Act
         viewModel.Name = "New Name";

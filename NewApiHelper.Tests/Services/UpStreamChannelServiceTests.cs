@@ -9,7 +9,7 @@ namespace NewApiHelper.Tests.Services;
 public class UpStreamChannelServiceTests : IDisposable
 {
     private readonly AppDbContext _context;
-    private readonly UpStreamChannelService _service;
+    private readonly UpStreamService _service;
 
     public UpStreamChannelServiceTests()
     {
@@ -18,7 +18,7 @@ public class UpStreamChannelServiceTests : IDisposable
             .Options;
 
         _context = new AppDbContext(options);
-        _service = new UpStreamChannelService(_context);
+        _service = new UpStreamService(_context);
 
         // 确保数据库已创建
         _context.Database.EnsureCreated();
@@ -38,7 +38,7 @@ public class UpStreamChannelServiceTests : IDisposable
     public async Task AddAsync_ValidChannel_ReturnsChannelWithId()
     {
         // Arrange
-        var channel = new UpStreamChannel
+        var channel = new Upstream
         {
             Name = "Test Channel",
             Url = "https://api.test.com",
@@ -61,7 +61,7 @@ public class UpStreamChannelServiceTests : IDisposable
     public async Task GetByIdAsync_ExistingChannel_ReturnsChannel()
     {
         // Arrange
-        var channel = new UpStreamChannel
+        var channel = new Upstream
         {
             Name = "Test Channel",
             Url = "https://api.test.com",
@@ -93,7 +93,7 @@ public class UpStreamChannelServiceTests : IDisposable
     public async Task UpdateAsync_ExistingChannel_UpdatesSuccessfully()
     {
         // Arrange
-        var channel = new UpStreamChannel
+        var channel = new Upstream
         {
             Name = "Original Name",
             Url = "https://original.com",
@@ -120,7 +120,7 @@ public class UpStreamChannelServiceTests : IDisposable
     public async Task DeleteAsync_ExistingChannel_RemovesSuccessfully()
     {
         // Arrange
-        var channel = new UpStreamChannel
+        var channel = new Upstream
         {
             Name = "Test Channel",
             Url = "https://api.test.com",
@@ -149,14 +149,14 @@ public class UpStreamChannelServiceTests : IDisposable
     public async Task GetAllAsync_MultipleChannels_ReturnsAllChannels()
     {
         // Arrange
-        var channel1 = new UpStreamChannel
+        var channel1 = new Upstream
         {
             Name = "Channel 1",
             Url = "https://api1.com",
             Multiplier = 1.0,
             CreatedAt = DateTime.Now
         };
-        var channel2 = new UpStreamChannel
+        var channel2 = new Upstream
         {
             Name = "Channel 2",
             Url = "https://api2.com",

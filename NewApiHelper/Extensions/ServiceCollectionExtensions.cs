@@ -27,7 +27,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite(connectionString));
-        services.AddScoped<IUpStreamChannelService, UpStreamChannelService>();
+        services.AddScoped<IUpstreamService, UpStreamService>();
+        services.AddScoped<IUpstreamGroupService, UpstreamGroupService>();
         return services;
     }
 }

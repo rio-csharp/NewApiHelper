@@ -84,11 +84,13 @@ public partial class App : Application
         services.AddChannelHttpClient(apiBaseUrl!, apiToken!, apiUserId!);
         services.AddDatabase(dbConn!);
         services.AddTransient<ChannelManagementViewModel>();
-        services.AddTransient<UpStreamChannelManagementViewModel>();
+        services.AddTransient<UpStreamManagementViewModel>();
+        services.AddTransient<UpstreamGroupViewModel>();
         services.AddTransient<IMessageService, MessageService>();
         // 优化View注入，自动注入ViewModel
         services.AddTransient<ChannelManagementView>(sp => new ChannelManagementView(sp.GetRequiredService<ChannelManagementViewModel>()));
-        services.AddTransient<UpstreamManagementView>(sp => new UpstreamManagementView(sp.GetRequiredService<UpStreamChannelManagementViewModel>()));
+        services.AddTransient<UpstreamManagementView>(sp => new UpstreamManagementView(sp.GetRequiredService<UpStreamManagementViewModel>()));
+        services.AddTransient<UpstreamGroupView>(sp => new UpstreamGroupView(sp.GetRequiredService<UpstreamGroupViewModel>()));
         services.AddTransient<DataDisplayView>();
         services.AddTransient<SyncLogView>();
         services.AddTransient<MainWindowViewModel>();

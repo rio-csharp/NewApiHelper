@@ -6,16 +6,16 @@ using System.Collections.ObjectModel;
 
 namespace NewApiHelper.ViewModels;
 
-public partial class UpStreamChannelManagementViewModel : ObservableObject
+public partial class UpStreamManagementViewModel : ObservableObject
 {
-    private readonly IUpStreamChannelService _service;
+    private readonly IUpstreamService _service;
     private readonly IMessageService _messageService;
 
     [ObservableProperty]
-    private ObservableCollection<UpStreamChannelItemViewModel> _channels;
+    private ObservableCollection<UpstreamItemViewModel> _channels;
 
     [ObservableProperty]
-    private UpStreamChannelItemViewModel? _selectedChannel;
+    private UpstreamItemViewModel? _selectedChannel;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(EditChannelCommand))]
@@ -31,11 +31,11 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
     [ObservableProperty]
     private bool _showAddButton;
 
-    public UpStreamChannelManagementViewModel(IUpStreamChannelService service, IMessageService messageService)
+    public UpStreamManagementViewModel(IUpstreamService service, IMessageService messageService)
     {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
-        _channels = new ObservableCollection<UpStreamChannelItemViewModel>();
+        _channels = new ObservableCollection<UpstreamItemViewModel>();
         _channels.CollectionChanged += (s, e) =>
         {
             HasChannels = _channels.Count > 0;
@@ -73,7 +73,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
         return _messageService.ShowConfirmation(message, title);
     }
 
-    partial void OnSelectedChannelChanged(UpStreamChannelItemViewModel? oldValue, UpStreamChannelItemViewModel? newValue)
+    partial void OnSelectedChannelChanged(UpstreamItemViewModel? oldValue, UpstreamItemViewModel? newValue)
     {
         // 当用户选择已存在的渠道，加载详细信息以便编辑
         if (oldValue != null)
@@ -93,7 +93,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
     private void SelectedChannel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         // 当 SelectedChannel 的编辑状态或其它导致命令可用性变化的属性改变时，刷新命令状态
-        if (e.PropertyName == nameof(UpStreamChannelItemViewModel.IsEditing) || e.PropertyName == nameof(UpStreamChannelItemViewModel.IsDirty))
+        if (e.PropertyName == nameof(UpstreamItemViewModel.IsEditing) || e.PropertyName == nameof(UpstreamItemViewModel.IsDirty))
         {
             UpdateCommandStates();
         }
@@ -110,7 +110,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
             Channels.Clear();
             foreach (var channel in channels)
             {
-                var vm = new UpStreamChannelItemViewModel(channel)
+                var vm = new UpstreamItemViewModel(channel)
                 {
                     IsNew = false,
                     IsEditing = false,
@@ -137,7 +137,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
     [RelayCommand]
     public void AddChannel()
     {
-        var newChannel = new UpStreamChannel
+        var newChannel = new Upstream
         {
             Id = 0,
             Name = "",
@@ -145,7 +145,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
             Multiplier = 1.0
         };
 
-        var vm = new UpStreamChannelItemViewModel(newChannel)
+        var vm = new UpstreamItemViewModel(newChannel)
         {
             IsNew = true,
             IsEditing = true
@@ -160,7 +160,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
         if (SelectedChannel == null) return;
 
         var src = SelectedChannel.GetModel();
-        var newChannel = new UpStreamChannel
+        var newChannel = new Upstream
         {
             Id = 0,
             Name = src.Name + "_Copy",
@@ -168,7 +168,7 @@ public partial class UpStreamChannelManagementViewModel : ObservableObject
             Multiplier = src.Multiplier
         };
 
-        var vm = new UpStreamChannelItemViewModel(newChannel)
+        var vm = new UpstreamItemViewModel(newChannel)
         {
             IsNew = true,
             IsEditing = true

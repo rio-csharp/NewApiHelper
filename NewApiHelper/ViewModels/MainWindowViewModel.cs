@@ -9,6 +9,7 @@ public static class PageKeys
 {
     public const string ChannelManagement = "ChannelManagement";
     public const string UpstreamManagement = "UpstreamManagement";
+    public const string UpstreamGroup = "UpstreamGroup";
     public const string DataDisplay = "DataDisplay";
     public const string SyncLog = "SyncLog";
 }
@@ -60,6 +61,7 @@ public class MainWindowViewModel : ObservableObject
         {
             new MenuItemModel { DisplayName = "渠道管理", PageKey = PageKeys.ChannelManagement },
             new MenuItemModel { DisplayName = "上游管理", PageKey = PageKeys.UpstreamManagement },
+            new MenuItemModel { DisplayName = "上游分组", PageKey = PageKeys.UpstreamGroup },
             new MenuItemModel { DisplayName = "数据展示", PageKey = PageKeys.DataDisplay },
             new MenuItemModel { DisplayName = "同步日志", PageKey = PageKeys.SyncLog },
         };
@@ -85,6 +87,10 @@ public class MainWindowViewModel : ObservableObject
 
             case PageKeys.UpstreamManagement:
                 page = _serviceProvider.GetService(typeof(UpstreamManagementView));
+                break;
+
+            case PageKeys.UpstreamGroup:
+                page = _serviceProvider.GetService(typeof(UpstreamGroupView));
                 break;
 
             case PageKeys.DataDisplay:

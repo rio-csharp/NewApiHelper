@@ -27,9 +27,9 @@ public class ServiceCollectionExtensionsTests
         dbContext.Should().NotBeNull();
 
         // Check UpStreamChannelService is registered
-        var channelService = serviceProvider.GetService<IUpStreamChannelService>();
+        var channelService = serviceProvider.GetService<IUpstreamService>();
         channelService.Should().NotBeNull();
-        channelService.Should().BeOfType<UpStreamChannelService>();
+        channelService.Should().BeOfType<UpStreamService>();
     }
 
     [Fact]
@@ -66,8 +66,8 @@ public class ServiceCollectionExtensionsTests
         var serviceProvider = services.BuildServiceProvider();
 
         // Get two instances from the same scope
-        var service1 = serviceProvider.GetService<IUpStreamChannelService>();
-        var service2 = serviceProvider.GetService<IUpStreamChannelService>();
+        var service1 = serviceProvider.GetService<IUpstreamService>();
+        var service2 = serviceProvider.GetService<IUpstreamService>();
 
         // They should be the same instance within the same scope (scoped lifetime)
         service1.Should().BeSameAs(service2);
@@ -75,7 +75,7 @@ public class ServiceCollectionExtensionsTests
         // Create a new scope
         using var scope = serviceProvider.CreateScope();
         var scopedServiceProvider = scope.ServiceProvider;
-        var scopedService = scopedServiceProvider.GetService<IUpStreamChannelService>();
+        var scopedService = scopedServiceProvider.GetService<IUpstreamService>();
 
         // Scoped service in different scope should be different instance
         scopedService.Should().NotBeSameAs(service1);
@@ -93,7 +93,7 @@ public class ServiceCollectionExtensionsTests
 
         // Assert
         var serviceProvider = services.BuildServiceProvider();
-        var channelService = serviceProvider.GetService<IUpStreamChannelService>() as UpStreamChannelService;
+        var channelService = serviceProvider.GetService<IUpstreamService>() as UpStreamService;
 
         // The service should have been created with a DbContext
         channelService.Should().NotBeNull();

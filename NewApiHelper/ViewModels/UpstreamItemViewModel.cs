@@ -3,11 +3,11 @@ using NewApiHelper.Models;
 
 namespace NewApiHelper.ViewModels;
 
-public partial class UpStreamChannelItemViewModel : ObservableObject
+public partial class UpstreamItemViewModel : ObservableObject
 {
-    private readonly UpStreamChannel _channel;
+    private readonly Upstream _channel;
 
-    public UpStreamChannelItemViewModel(UpStreamChannel channel)
+    public UpstreamItemViewModel(Upstream channel)
     {
         _channel = channel;
     }
@@ -70,5 +70,5 @@ public partial class UpStreamChannelItemViewModel : ObservableObject
     [ObservableProperty]
     private bool _isDirty;
 
-    public UpStreamChannel GetModel() => _channel;
+    public Upstream GetModel() => _channel;
 }
