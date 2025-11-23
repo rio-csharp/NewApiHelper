@@ -32,9 +32,14 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="上游分组列表" FontSize="16" FontWeight="Bold" Margin="12,12,12,8" Foreground="#FF2E3B52" />
+                    <DockPanel Grid.Row="0" Margin="12,12,12,8">
+                        <TextBlock DockPanel.Dock="Left" Text="上游分组列表" FontSize="16" FontWeight="Bold" Foreground="#FF2E3B52" VerticalAlignment="Center" />
+                        <Button DockPanel.Dock="Right" Command="{Binding AddGroupCommand}" Width="28" Height="28" VerticalAlignment="Center"
+                                Background="Transparent" BorderThickness="0" ToolTip="新增上游">
+                            <Path Stroke="#FF2E3B52" StrokeThickness="2" Data="M10,4 L10,16 M4,10 L16,10" />
+                        </Button>
+                    </DockPanel>
                     <ListView Grid.Row="1" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup, Mode=TwoWay}" Margin="6"
                               IsSynchronizedWithCurrentItem="True" Background="Transparent" BorderThickness="0">
                         <ListView.ItemContainerStyle>
@@ -68,7 +73,6 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Button Grid.Row="2" Content="➕ 新增上游分组" Command="{Binding AddGroupCommand}" Margin="12" Style="{StaticResource ActionButtonStyle}" FontSize="14" Visibility="{Binding ShowAddButton, Converter={StaticResource BooleanToVisibilityConverter}}" />
                 </Grid>
                 <!-- 右侧：详情/编辑面板，使用 ContentControl 绑定 SelectedGroup -->
                 <ContentControl Grid.Row="0" Grid.Column="1" Content="{Binding SelectedGroup}" Margin="12">
@@ -80,7 +84,6 @@
                                         <TextBlock Text="上游分组详情" FontSize="18" FontWeight="Bold" Foreground="#FF2E3B52" Margin="0,0,0,16" />
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                                             <Button Content="🔄 刷新" Command="{Binding DataContext.LoadGroupsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource SecondaryButtonStyle}" />
-                                            <Button Content="➕ 新增" Command="{Binding DataContext.AddGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource ActionButtonStyle}" />
                                             <Button Content="📋 复制" Command="{Binding DataContext.CopyGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource ActionButtonStyle}" ToolTip="复制当前选中上游分组" />
                                             <Button Content="✏️ 编辑" Command="{Binding DataContext.StartEditGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource ActionButtonStyle}" ToolTip="选择一个上游分组以启用编辑" />
                                             <Button Content="🗑️ 删除" Command="{Binding DataContext.DeleteGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource DangerButtonStyle}" ToolTip="删除当前选中上游分组" />

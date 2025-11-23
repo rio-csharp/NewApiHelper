@@ -199,6 +199,7 @@ public class ModelSyncViewModel : ObservableObject
         await Task.WhenAll(tasks);
 
         await RefreshAsync();
+        MessageBox.Show("Import finished.");
     }
 
     private async Task TestAsync()

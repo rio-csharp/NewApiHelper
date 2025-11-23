@@ -78,10 +78,14 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="渠道列表" FontSize="16" FontWeight="Bold" Margin="12,12,12,8" Foreground="#FF2E3B52" />
-
+                    <DockPanel Grid.Row="0" Margin="12,12,12,8">
+                        <TextBlock DockPanel.Dock="Left" Text="渠道列表" FontSize="16" FontWeight="Bold" Foreground="#FF2E3B52" VerticalAlignment="Center" />
+                        <Button DockPanel.Dock="Right" Command="{Binding AddChannelCommand}" Width="28" Height="28" VerticalAlignment="Center"
+                                Background="Transparent" BorderThickness="0" ToolTip="新增渠道">
+                            <Path Stroke="#FF2E3B52" StrokeThickness="2" Data="M10,4 L10,16 M4,10 L16,10" />
+                        </Button>
+                    </DockPanel>
                     <ListView Grid.Row="1" ItemsSource="{Binding Channels}" SelectedItem="{Binding SelectedChannel, Mode=TwoWay}" Margin="6"
                               IsSynchronizedWithCurrentItem="True" Background="Transparent" BorderThickness="0">
                         <ListView.ItemContainerStyle>
@@ -116,7 +120,6 @@
                         </ListView.ItemTemplate>
                     </ListView>
 
-                    <Button Grid.Row="2" Content="➕ 新增渠道" Command="{Binding AddChannelCommand}" Margin="12" Style="{StaticResource ActionButtonStyle}" FontSize="14" Visibility="{Binding HasChannels, Converter={StaticResource InvertedBooleanToVisibilityConverter}}" />
                 </Grid>
 
                 <!-- 右侧：详情/编辑面板，使用 ContentControl 绑定 SelectedChannel -->
@@ -129,7 +132,6 @@
                                         <TextBlock Text="渠道详情" FontSize="18" FontWeight="Bold" Foreground="#FF2E3B52" Margin="0,0,0,16" />
                                         <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                                             <Button Content="🔄 刷新" Command="{Binding DataContext.LoadChannelsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource SecondaryButtonStyle}" />
-                                            <Button Content="➕ 新增" Command="{Binding DataContext.AddChannelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource ActionButtonStyle}" />
                                             <Button Content="📋 复制" Command="{Binding DataContext.CopyChannelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource ActionButtonStyle}" ToolTip="复制当前选中渠道" />
                                             <Button Content="✏️ 编辑" Command="{Binding DataContext.StartEditChannelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource ActionButtonStyle}" ToolTip="选择一个渠道以启用编辑" />
                                             <Button Content="🗑️ 删除" Command="{Binding DataContext.DeleteChannelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Style="{StaticResource DangerButtonStyle}" ToolTip="删除当前选中渠道" />

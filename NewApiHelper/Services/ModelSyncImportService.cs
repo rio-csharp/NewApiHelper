@@ -10,21 +10,35 @@ public class ModelSyncImportService : IModelSyncImportService
 {
     private readonly AppDbContext _context;
     private readonly HttpClient _httpClient;
+    private readonly IMessageService _message;
 
-    public ModelSyncImportService(AppDbContext context, HttpClient httpClient)
+    public ModelSyncImportService(AppDbContext context, HttpClient httpClient, IMessageService message)
     {
         _context = context;
         _httpClient = httpClient;
+        _message = message;
     }
 
     public async Task ImportAsync(Upstream upstream, IEnumerable<UpstreamGroup> upstreamGroups)
     {
-        var json = await GetPriceJson(upstream);
-        foreach (var group in upstreamGroups)
+        try
         {
-            var models = GetModels(json, upstream, group);
-            await UpsertModels(models);
+            if (upstream.Name.ToLower() == "ds")
+            {
+                return;
+            }
+            var json = await GetPriceJson(upstream);
+            foreach (var group in upstreamGroups)
+            {
+                var models = GetModels(json, upstream, group);
+                await UpsertModels(models);
+            }
         }
+        catch (Exception ex)
+        {
+            _message.ShowError($"同步Upstream定价信息失败：[{upstream.Url}] {ex.Message} + ");
+        }
+
     }
 
     private async Task<string> GetPriceJson(Upstream upstream, int maxRetries = 3, int delayMs = 1000)
@@ -56,7 +70,6 @@ public class ModelSyncImportService : IModelSyncImportService
             attempt++;
             await Task.Delay(delayMs);
         }
-
         throw new Exception($"请求Upstream[{upstream.Url}]定价接口失败，重试{maxRetries}次后仍未成功。", lastException);
     }
 
