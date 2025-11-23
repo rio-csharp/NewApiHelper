@@ -210,9 +210,19 @@ public class ModelSyncViewModel : ObservableObject
         int completed = 0;
         TestStatus = $"正在测试 0/{modelsToTest.Count}";
 
+        var semaphore = new SemaphoreSlim(5); // 限制并发最多5个
+
         var tasks = modelsToTest.Select(async model =>
         {
-            await TestModelAsync(model, "Test");
+            await semaphore.WaitAsync();
+            try
+            {
+                await TestModelAsync(model, "Test");
+            }
+            finally
+            {
+                semaphore.Release();
+            }
             int current = Interlocked.Increment(ref completed);
             TestStatus = $"正在测试 {current}/{modelsToTest.Count}";
         }).ToList();
@@ -236,9 +246,19 @@ public class ModelSyncViewModel : ObservableObject
         int completed = 0;
         TestStatus = $"正在测试失败 0/{modelsToTest.Count}";
 
+        var semaphore = new SemaphoreSlim(5); // 限制并发最多5个
+
         var tasks = modelsToTest.Select(async model =>
         {
-            await TestModelAsync(model, "TestFailed");
+            await semaphore.WaitAsync();
+            try
+            {
+                await TestModelAsync(model, "TestFailed");
+            }
+            finally
+            {
+                semaphore.Release();
+            }
             int current = Interlocked.Increment(ref completed);
             TestStatus = $"正在测试失败 {current}/{modelsToTest.Count}";
         }).ToList();

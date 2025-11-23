@@ -1,0 +1,20 @@
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#4A90E2" stroke="#FFFFFF" stroke-width="2"/>
+  
+  <!-- API symbol: simplified gear -->
+  <g transform="translate(32,32)">
+    <circle cx="0" cy="0" r="8" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    <rect x="-2" y="-12" width="4" height="8" fill="#FFFFFF"/>
+    <rect x="-2" y="4" width="4" height="8" fill="#FFFFFF"/>
+    <rect x="-12" y="-2" width="8" height="4" fill="#FFFFFF"/>
+    <rect x="4" y="-2" width="8" height="4" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Arrow pointing up for priority -->
+  <polygon points="32,20 28,28 36,28" fill="#FFFFFF"/>
+  <rect x="31" y="28" width="2" height="8" fill="#FFFFFF"/>
+  
+  <!-- Dollar sign for price -->
+  <text x="32" y="50" font-family="Arial" font-size="12" fill="#FFFFFF" text-anchor="middle">$</text>
+</svg>
