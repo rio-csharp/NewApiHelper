@@ -10,9 +10,9 @@ public class ModelSyncImportService : IModelSyncImportService
 {
     private readonly AppDbContext _context;
     private readonly HttpClient _httpClient;
-    private readonly IMessageService _message;
+    private readonly IMessageService? _message;
 
-    public ModelSyncImportService(AppDbContext context, HttpClient httpClient, IMessageService message)
+    public ModelSyncImportService(AppDbContext context, HttpClient httpClient, IMessageService? message = null)
     {
         _context = context;
         _httpClient = httpClient;
@@ -36,7 +36,7 @@ public class ModelSyncImportService : IModelSyncImportService
         }
         catch (Exception ex)
         {
-            _message.ShowError($"同步Upstream定价信息失败：[{upstream.Url}] {ex.Message} + ");
+            _message?.ShowError($"同步Upstream定价信息失败：[{upstream.Url}] {ex.Message} + ");
         }
 
     }

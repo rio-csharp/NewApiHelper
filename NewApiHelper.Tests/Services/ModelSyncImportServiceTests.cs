@@ -22,7 +22,7 @@ public class ModelSyncImportServiceTests
                 actualPrices[property.Name] = property.Value.GetDecimal();
             }
         }
-        var service = new ModelSyncImportService(null!, null!); // We don't need context or http for this test
+        var service = new ModelSyncImportService(null!,null!, null!); // We don't need context or http for this test
 
         var models = getModelsFunc(service, jsonContent, upstream, upstreamGroup);
 

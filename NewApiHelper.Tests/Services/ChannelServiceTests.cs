@@ -3,6 +3,7 @@ using Moq;
 using Moq.Protected;
 using NewApiHelper.Models;
 using NewApiHelper.Services;
+using System.Collections.ObjectModel;
 using System.Net;
 using System.Text.Json;
 
@@ -308,4 +309,169 @@ public class ChannelServiceTests
     }
 
     #endregion DeleteChannelAsync Tests
+
+    #region GenerateChannels Tests
+
+    [Fact]
+    public void GenerateChannels_ShouldAssignHigherPriorityValue_ToCheaperChannel()
+    {
+        // Arrange
+        var data = new List<ModelSync>
+        {
+            CreateSync(1, "gpt-4", price: 10m, usId: 100, grpId: 1), // 便宜: 应获得高分 (100)
+            CreateSync(2, "gpt-4", price: 20m, usId: 200, grpId: 2)  // 贵: 应获得低分 (99)
+        };
+        // Act
+        var result = _channelService.GenerateChannels(data).ToList();
+        // Assert
+        var cheapChannel = result.Single(r => r.BaseUrl.Contains("us100"));
+        var expensiveChannel = result.Single(r => r.BaseUrl.Contains("us200"));
+        // 验证：便宜的价格 -> Priority 数值更大
+        Assert.Equal(100, cheapChannel.Priority);
+        Assert.Equal(99, expensiveChannel.Priority);
+
+        // 验证排序：列表第一个应该是高优先级的
+        Assert.Equal(cheapChannel, result.First());
+    }
+    [Fact]
+    public void GenerateChannels_ShouldMinimizeGroups_WithDescendingPriority()
+    {
+        // Arrange
+        // 场景：两家价格一致。由于ID排序通过，US1排前面，US2排后面。
+        // US1 应该获得 Rank 0 -> Priority 100
+        // US2 应该获得 Rank 1 -> Priority 99
+        var data = new List<ModelSync>
+        {
+            CreateSync(1, "model-x", 10m, usId: 1, grpId: 1), // US1
+            CreateSync(2, "model-x", 10m, usId: 2, grpId: 1), // US2
+            
+            CreateSync(3, "model-y", 50m, usId: 1, grpId: 1), // US1
+            CreateSync(4, "model-y", 50m, usId: 2, grpId: 1), // US2
+        };
+        // Act
+        var result = _channelService.GenerateChannels(data).ToList();
+        // Assert
+        Assert.Equal(2, result.Count);
+        var p100 = result.Single(r => r.Priority == 100);
+        var p99 = result.Single(r => r.Priority == 99);
+        Assert.Contains("us1", p100.BaseUrl); // ID小的优先 -> Rank0 -> Priority 100
+        Assert.Contains("us2", p99.BaseUrl);  // ID大的靠后 -> Rank1 -> Priority 99
+
+        Assert.Contains("model-x", p100.Models);
+        Assert.Contains("model-y", p100.Models);
+    }
+
+    // 辅助方法 (保持不变)
+    private ModelSync CreateSync(int id, string modelName, decimal price, int usId, int grpId, TestResultStatus status = TestResultStatus.Success)
+    {
+        var upstream = new Upstream { Id = usId, Name = $"Channel{usId}", Url = $"http://us{usId}.com" };
+        var group = new UpstreamGroup
+        {
+            Id = grpId,
+            UpstreamId = usId,
+            Name = $"Group{grpId}",
+            GroupName = $"Grp{grpId}",
+            Key = $"key-{grpId}",
+            Upstream = upstream
+        };
+        return new ModelSync
+        {
+            Id = id,
+            Name = modelName,
+            Price = price,
+            QuotaType = QuotaType.PayPerUse,
+            UpstreamId = usId,
+            UpstreamGroupId = grpId,
+            Upstream = upstream,
+            UpstreamGroup = group,
+            TestResults = new ObservableCollection<ModelTestResult> { new ModelTestResult { Status = status } }
+        };
+    }
+
+    [Fact]
+    public void BuildModelMappingForGroupWithFiltering_Should_Map_ValidDateSuffix()
+    {
+        var modelNames = new[]
+        {
+            "claude-opus-4-20250514",
+            "claude-sonnet-4-20250514",
+            "gpt-4.1-2025-04-14"
+        };
+
+        var mapping = _channelService.BuildModelMappingForGroupWithFiltering(modelNames);
+
+        Assert.Equal(3, mapping.Count);
+        Assert.Equal("claude-opus-4-20250514", mapping["claude-opus-4"]);
+        Assert.Equal("claude-sonnet-4-20250514", mapping["claude-sonnet-4"]);
+        Assert.Equal("gpt-4.1-2025-04-14", mapping["gpt-4.1"]);
+    }
+
+    [Fact]
+    public void BuildModelMappingForGroupWithFiltering_Should_NotMap_WhenBaseModelExists()
+    {
+        var modelNames = new[]
+        {
+            "gpt-4.1",
+            "gpt-4.1-2025-04-14",
+            "gpt-5-chat",
+            "gpt-5-chat-2025-08-07"
+        };
+
+        var mapping = _channelService.BuildModelMappingForGroupWithFiltering(modelNames);
+
+        Assert.Empty(mapping);
+    }
+
+    [Fact]
+    public void BuildModelMappingForGroupWithFiltering_Should_SelectLatestDate_WhenMultipleVersionsExist()
+    {
+        var modelNames = new[]
+        {
+            "gpt-4.1-2025-04-14",
+            "gpt-4.1-2025-04-15",
+            "gpt-4.1"
+        };
+
+        var mapping = _channelService.BuildModelMappingForGroupWithFiltering(modelNames);
+
+        Assert.Empty(mapping);
+    }
+
+    [Fact]
+    public void BuildModelMappingForGroupWithFiltering_Should_SelectLatestDate_WhenBaseModelNotExist()
+    {
+        var modelNames = new[]
+        {
+            "gpt-4.1-2025-04-14",
+            "gpt-4.1-2025-04-15"
+        };
+
+        var mapping = _channelService.BuildModelMappingForGroupWithFiltering(modelNames);
+
+        Assert.Single(mapping);
+        Assert.True(mapping.ContainsKey("gpt-4.1"));
+        Assert.Equal("gpt-4.1-2025-04-15", mapping["gpt-4.1"]);
+    }
+
+    [Fact]
+    public void BuildModelMappingForGroupWithFiltering_Should_HandleMultipleMappings()
+    {
+        var modelNames = new[]
+        {
+            "gpt-4.1-2025-04-14",
+            "gpt-4.1-2025-04-15",
+            "gpt-5-chat-2025-08-07",
+            "gpt-5-chat-2025-08-05",
+            "claude-opus-4-20251201"
+        };
+
+        var mapping = _channelService.BuildModelMappingForGroupWithFiltering(modelNames);
+
+        Assert.Equal(3, mapping.Count);
+        Assert.Equal("gpt-4.1-2025-04-15", mapping["gpt-4.1"]);
+        Assert.Equal("gpt-5-chat-2025-08-07", mapping["gpt-5-chat"]);
+        Assert.Equal("claude-opus-4-20251201", mapping["claude-opus-4"]);
+    }
+
+    #endregion
 }

@@ -18,6 +18,12 @@ public class MessageService : IMessageService
         MessageBox.Show(message, "错误", MessageBoxButton.OK, MessageBoxImage.Error);
     }
 
+    public void ShowInfo(string message)
+    {
+        _logger.LogInformation("用户信息提示: {Message}", message);
+        MessageBox.Show(message, "信息", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
     public bool ShowConfirmation(string message, string title = "确认")
     {
         _logger.LogInformation("用户确认提示: {Title} - {Message}", title, message);

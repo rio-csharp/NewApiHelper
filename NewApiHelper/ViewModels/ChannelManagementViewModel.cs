@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.EntityFrameworkCore;
+using NewApiHelper.Data;
 using NewApiHelper.Services;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -10,6 +12,7 @@ public partial class ChannelManagementViewModel : ObservableObject
 {
     private readonly IChannelService _channelService;
     private readonly IMessageService _messageService;
+    private readonly AppDbContext _dbContext;
 
     [ObservableProperty]
     private ObservableCollection<ChannelItemViewModel> _channels;
@@ -33,10 +36,11 @@ public partial class ChannelManagementViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasChannels;
 
-    public ChannelManagementViewModel(IChannelService channelService, IMessageService messageService)
+    public ChannelManagementViewModel(IChannelService channelService, IMessageService messageService, AppDbContext dbContext)
     {
         _channelService = channelService ?? throw new ArgumentNullException(nameof(channelService));
         _messageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _channels = new ObservableCollection<ChannelItemViewModel>();
         _channels.CollectionChanged += OnChannelsChanged;
         // 监听 SelectedChannel 的变化来更新 IsChannelSelected
@@ -409,6 +413,56 @@ public partial class ChannelManagementViewModel : ObservableObject
                 SelectedChannel.IsBusy = false;
             }
         }
+    }
+
+    [RelayCommand]
+    public async Task DeleteAllChannelsAsync()
+    {
+        if (!Channels.Any()) return;
+        var result = ShowConfirmation("确定要删除所有渠道吗？此操作不可撤销。", "确认删除所有");
+        if (!result) return;
+
+        IsLoading = true;
+        try
+        {
+            var ids = Channels.Select(c => c.Id).ToList();
+            var response = await _channelService.DeleteChannelsAsync(ids);
+            if (response.Success)
+            {
+                Channels.Clear();
+                SelectedChannel = null;
+                _messageService.ShowInfo($"成功删除了 {response.Data} 个渠道。");
+            }
+            else
+            {
+                ShowErrorMessage(response.Message ?? "删除所有渠道失败。");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowErrorMessage($"删除所有渠道时发生异常: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    public async Task ImportChannelsAsync()
+    {
+        var modelSyncs = _dbContext.ModelSyncs.Include(m => m.Upstream).Include(m => m.UpstreamGroup).Include(m => m.TestResults).ToList();
+        var requests = _channelService.GenerateChannels(modelSyncs);
+        foreach (var request in requests)
+        {
+            var response = await _channelService.AddChannelAsync(request);
+            if (!response.Success)
+            {
+                ShowErrorMessage($"添加渠道 '{request.Name}' 失败: {response.Message}");
+            }
+        }
+        // Reload channels after import
+        await LoadChannelsAsync();
     }
 
     private bool CanTestChannel() => SelectedChannel != null && !SelectedChannel.IsEditing;

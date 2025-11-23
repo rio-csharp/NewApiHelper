@@ -47,4 +47,18 @@ public interface IChannelService
     /// <param name="id">要删除的渠道ID</param>
     /// <returns>表示操作结果的API响应</returns>
     Task<ApiResponse<object>> DeleteChannelAsync(int id);
+
+    /// <summary>
+    /// 批量删除渠道
+    /// </summary>
+    /// <param name="ids">要删除的渠道ID列表</param>
+    /// <returns>表示操作结果的API响应，data为成功删除的数量</returns>
+    Task<ApiResponse<int>> DeleteChannelsAsync(IEnumerable<int> ids);
+
+    /// <summary>
+    /// 根据输入的ModelSync列表，生成AddChannelRequest集合
+    /// </summary>
+    /// <param name="modelSyncs"></param>
+    /// <returns></returns>
+    IEnumerable<AddChannelRequest> GenerateChannels(IEnumerable<ModelSync> modelSyncs);
 }
