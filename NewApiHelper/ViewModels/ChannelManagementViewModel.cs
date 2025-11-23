@@ -2,9 +2,11 @@
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using NewApiHelper.Data;
+using NewApiHelper.Models;
 using NewApiHelper.Services;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 
 namespace NewApiHelper.ViewModels;
 
@@ -451,18 +453,87 @@ public partial class ChannelManagementViewModel : ObservableObject
     [RelayCommand]
     public async Task ImportChannelsAsync()
     {
+        // 获取所有现有渠道
+        var existingResponse = await _channelService.GetChannelsAsync(1, 10000); // 假设足够大以获取所有
+        if (!existingResponse.Success || existingResponse.Data == null)
+        {
+            ShowErrorMessage("无法获取现有渠道列表");
+            return;
+        }
+        var existingChannels = existingResponse.Data.Items;
+        var existingDict = existingChannels.ToDictionary(c => c.Name);
+
         var modelSyncs = _dbContext.ModelSyncs.Include(m => m.Upstream).Include(m => m.UpstreamGroup).Include(m => m.TestResults).ToList();
         var requests = _channelService.GenerateChannels(modelSyncs);
+
+        int added = 0, updated = 0, unchanged = 0;
+        var importedNames = new HashSet<string>();
+
         foreach (var request in requests)
         {
-            var response = await _channelService.AddChannelAsync(request);
-            if (!response.Success)
+            importedNames.Add(request.Name);
+            if (existingDict.TryGetValue(request.Name, out var existing))
             {
-                ShowErrorMessage($"添加渠道 '{request.Name}' 失败: {response.Message}");
+                // 比较模型
+                var newModels = NormalizeModels(request.Models);
+                var existingModels = NormalizeModels(existing.Models);
+                if (newModels != existingModels)
+                {
+                    // 更新模型
+                    var updateReq = new UpdateChannelRequest
+                    {
+                        Id = existing.Id,
+                        Models = request.Models
+                    };
+                    var response = await _channelService.UpdateChannelAsync(updateReq);
+                    if (response.Success)
+                    {
+                        updated++;
+                    }
+                    else
+                    {
+                        ShowErrorMessage($"更新渠道 '{request.Name}' 失败: {response.Message}");
+                    }
+                }
+                else
+                {
+                    unchanged++;
+                }
+            }
+            else
+            {
+                // 添加
+                var response = await _channelService.AddChannelAsync(request);
+                if (response.Success)
+                {
+                    added++;
+                }
+                else
+                {
+                    ShowErrorMessage($"添加渠道 '{request.Name}' 失败: {response.Message}");
+                }
             }
         }
-        // Reload channels after import
+
+        // 找出多余的渠道
+        var extraChannels = existingChannels.Where(c => !importedNames.Contains(c.Name)).Select(c => c.Name).ToList();
+
+        // 重新加载渠道列表
         await LoadChannelsAsync();
+
+        // 显示统计信息
+        string message = $"添加了 {added} 个渠道，更新了 {updated} 个渠道，{unchanged} 个渠道模型未变化。";
+        if (extraChannels.Any())
+        {
+            message += $" 多余的渠道: {string.Join(", ", extraChannels)}";
+        }
+        _messageService.ShowInfo(message);
+    }
+
+    private string NormalizeModels(string? models)
+    {
+        if (string.IsNullOrEmpty(models)) return "";
+        return string.Join(",", models.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).OrderBy(m => m));
     }
 
     private bool CanTestChannel() => SelectedChannel != null && !SelectedChannel.IsEditing;

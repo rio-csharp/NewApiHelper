@@ -1,5 +1,7 @@
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
+using NewApiHelper.Data;
 using NewApiHelper.Models;
 using NewApiHelper.Services;
 using NewApiHelper.ViewModels;
@@ -10,13 +12,18 @@ public class ChannelManagementViewModelTests
 {
     private readonly Mock<IChannelService> _mockChannelService;
     private readonly Mock<IMessageService> _mockMessageService;
+    private readonly AppDbContext _dbContext;
     private readonly ChannelManagementViewModel _viewModel;
 
     public ChannelManagementViewModelTests()
     {
         _mockChannelService = new Mock<IChannelService>();
         _mockMessageService = new Mock<IMessageService>();
-        _viewModel = new ChannelManagementViewModel(_mockChannelService.Object, _mockMessageService.Object);
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .Options;
+        _dbContext = new AppDbContext(options);
+        _viewModel = new ChannelManagementViewModel(_mockChannelService.Object, _mockMessageService.Object, _dbContext);
     }
 
     [Fact]
