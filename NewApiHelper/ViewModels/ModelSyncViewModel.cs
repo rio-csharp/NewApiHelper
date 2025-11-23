@@ -21,6 +21,7 @@ public class ModelSyncViewModel : ObservableObject
     public ObservableCollection<Upstream> Upstreams { get; } = new();
     public ObservableCollection<UpstreamGroup> UpstreamGroups { get; } = new();
     public ObservableCollection<UpstreamGroup> FilteredUpstreamGroups { get; } = new();
+    public ObservableCollection<string> TestResultStatusOptions { get; } = new();
 
     private readonly Upstream allUpstream = new Upstream { Name = "All", Id = -1 };
     private readonly UpstreamGroup allUpstreamGroup = new UpstreamGroup { Name = "All", Id = -1, UpstreamId = -1 };
@@ -28,6 +29,7 @@ public class ModelSyncViewModel : ObservableObject
     public IRelayCommand RefreshCommand { get; }
     public IRelayCommand ImportCommand { get; }
     public IRelayCommand SearchCommand { get; }
+    public IRelayCommand ExactSearchCommand { get; }
     public IRelayCommand TestCommand { get; }
     public IRelayCommand TestFailedCommand { get; }
 
@@ -88,6 +90,26 @@ public class ModelSyncViewModel : ObservableObject
         }
     }
 
+    private int _selectedTestResultIndex = 0;
+
+    public int SelectedTestResultIndex
+    {
+        get => _selectedTestResultIndex;
+        set
+        {
+            SetProperty(ref _selectedTestResultIndex, value);
+            UpdateFilteredItems();
+        }
+    }
+
+    private bool _isExactSearchMode;
+
+    public bool IsExactSearchMode
+    {
+        get => _isExactSearchMode;
+        set => SetProperty(ref _isExactSearchMode, value);
+    }
+
     public ModelSyncViewModel(AppDbContext context, IModelSyncImportService importService, ITestService testService)
     {
         _context = context;
@@ -95,9 +117,16 @@ public class ModelSyncViewModel : ObservableObject
         _testService = testService;
         RefreshCommand = new RelayCommand(async () => await RefreshAsync());
         ImportCommand = new RelayCommand(async () => await ImportAsync());
-        SearchCommand = new RelayCommand(UpdateFilteredItems);
+        SearchCommand = new RelayCommand(() => { IsExactSearchMode = false; UpdateFilteredItems(); });
+        ExactSearchCommand = new RelayCommand(() => { IsExactSearchMode = true; UpdateFilteredItems(); });
         TestCommand = new RelayCommand(async () => await TestAsync());
         TestFailedCommand = new RelayCommand(async () => await TestFailedAsync());
+
+        TestResultStatusOptions.Add("All");
+        TestResultStatusOptions.Add("Untested");
+        TestResultStatusOptions.Add("Success");
+        TestResultStatusOptions.Add("Failed");
+        TestResultStatusOptions.Add("Skipped");
 
         // 自动加载数据
         Task.Run(async () => await RefreshAsync());
@@ -151,7 +180,8 @@ public class ModelSyncViewModel : ObservableObject
         var filtered = Items.Where(m =>
             (SelectedUpstream == null || SelectedUpstream.Id == -1 || m.UpstreamId == SelectedUpstream.Id) &&
             (SelectedUpstreamGroup == null || SelectedUpstreamGroup.Id == -1 || m.UpstreamGroupId == SelectedUpstreamGroup.Id) &&
-            (string.IsNullOrEmpty(SearchText) || m.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+            (SelectedTestResultIndex == 0 || m.LatestTestResult == (TestResultStatus)(SelectedTestResultIndex - 1)) &&
+            (string.IsNullOrEmpty(SearchText) || (IsExactSearchMode ? m.Name.Equals(SearchText, StringComparison.OrdinalIgnoreCase) : m.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)))
         );
         FilteredItems.Clear();
         foreach (var item in filtered)
